@@ -5,18 +5,19 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+// Menggunakan port dari environment jika tersedia (untuk hosting seperti Render)
+const PORT = process.env.PORT || 3000; 
 const DATA_FILE = path.join(__dirname, 'pelamar.json');
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// Middleware untuk memparsing data application/x-www-form-urlencoded
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-// Middleware untuk menyajikan file statis (index.html, dll.)
-app.use(express.static('public'));
+app.use(express.static(PUBLIC_DIR)); // Menyajikan file statis dari folder public
 
-// Rute untuk menampilkan halaman utama
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Pastikan folder public ada
+if (!fs.existsSync(PUBLIC_DIR)) {
+    console.error(`Folder 'public' tidak ditemukan di ${PUBLIC_DIR}. Server mungkin gagal menyajikan index.html.`);
+}
 
 // Rute untuk memproses pengiriman formulir POST
 app.post('/submit', (req, res) => {
@@ -25,23 +26,33 @@ app.post('/submit', (req, res) => {
 
     console.log('Data diterima:', dataPelamar);
 
-    // Baca data yang sudah ada
     let pelamar = [];
     try {
-        const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
-        pelamar = JSON.parse(fileContent);
+        // Baca data yang sudah ada
+        if (fs.existsSync(DATA_FILE)) {
+            const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
+            pelamar = JSON.parse(fileContent);
+        }
     } catch (error) {
-        console.log('File data belum ada atau kosong, membuat array baru.');
+        console.error('Error membaca atau parsing pelamar.json:', error.message);
+        // Jika gagal parsing, mulai dengan array kosong
+        pelamar = []; 
     }
 
     // Tambahkan data baru
     pelamar.push(dataPelamar);
 
-    // Tulis kembali ke file
-    fs.writeFileSync(DATA_FILE, JSON.stringify(pelamar, null, 2), 'utf8');
-
-    // Kirim respons sukses
-    res.send('<h1>Lamaran berhasil dikirim dan disimpan!</h1><p><a href="/">Kembali ke formulir</a></p>');
+    try {
+        // Tulis kembali ke file
+        fs.writeFileSync(DATA_FILE, JSON.stringify(pelamar, null, 2), 'utf8');
+        console.log('Data berhasil disimpan ke pelamar.json');
+        
+        // Kirim respons sukses
+        res.send('<h1>Lamaran berhasil dikirim dan data disimpan!</h1><p><a href="/">Kirim lamaran lain</a></p>');
+    } catch (writeError) {
+        console.error('Error menulis ke pelamar.json:', writeError.message);
+        res.status(500).send('<h1>Terjadi Kesalahan Server saat menyimpan data.</h1>');
+    }
 });
 
 app.listen(PORT, () => {
