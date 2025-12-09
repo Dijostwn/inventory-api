@@ -1,47 +1,49 @@
 // server.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
-const PORT = process.env.PORT || 5000;
 const app = express();
-app.use(cors()); 
-app.use(bodyParser.json());
+const PORT = 3000;
+const DATA_FILE = path.join(__dirname, 'pelamar.json');
 
-// Data Disimpan di Memori Server (Simulasi Database)
-let inventory = [
-    { id: 1, name: "Monitor 24in", quantity: 12 },
-    { id: 2, name: "Keyboard Mekanik", quantity: 30 }
-];
-let nextId = 3;
+// Middleware untuk memparsing data application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+// Middleware untuk menyajikan file statis (index.html, dll.)
+app.use(express.static('public'));
 
-// 1. READ (GET)
-app.get('/api/items', (req, res) => {
-    res.json(inventory);
+// Rute untuk menampilkan halaman utama
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 2. CREATE (POST)
-app.post('/api/items', (req, res) => {
-    if (!req.body.name || req.body.quantity === undefined) {
-        return res.status(400).send("Nama dan Kuantitas diperlukan.");
-    }
-    const newItem = { id: nextId++, name: req.body.name, quantity: parseInt(req.body.quantity) };
-    inventory.push(newItem);
-    res.status(201).json(newItem);
-});
+// Rute untuk memproses pengiriman formulir POST
+app.post('/submit', (req, res) => {
+    const dataPelamar = req.body;
+    dataPelamar.tanggalWaktu = new Date().toISOString();
 
-// 3. DELETE
-app.delete('/api/items/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const initialLength = inventory.length;
-    inventory = inventory.filter(item => item.id !== id);
-    if (inventory.length < initialLength) {
-        res.status(200).send({ message: 'Item berhasil dihapus' });
-    } else {
-        res.status(404).send({ message: 'Item tidak ditemukan' });
+    console.log('Data diterima:', dataPelamar);
+
+    // Baca data yang sudah ada
+    let pelamar = [];
+    try {
+        const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
+        pelamar = JSON.parse(fileContent);
+    } catch (error) {
+        console.log('File data belum ada atau kosong, membuat array baru.');
     }
+
+    // Tambahkan data baru
+    pelamar.push(dataPelamar);
+
+    // Tulis kembali ke file
+    fs.writeFileSync(DATA_FILE, JSON.stringify(pelamar, null, 2), 'utf8');
+
+    // Kirim respons sukses
+    res.send('<h1>Lamaran berhasil dikirim dan disimpan!</h1><p><a href="/">Kembali ke formulir</a></p>');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server API berjalan di port ${PORT}`);
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
