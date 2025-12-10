@@ -32,10 +32,15 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Koneksi ke MongoDB berhasil!'))
     .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err));
 
-
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(PUBLIC_DIR)); 
+
+// Pastikan root path ('/') selalu melayani index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+// ----------------------
 
 // ENDPOINT KIRIM TIKET
 app.post('/kirim-tiket', async (req, res) => { // Fungsi harus ASYNC
