@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 // Menggunakan port 3000 untuk lokal, atau menggunakan PORT dari environment
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 80; 
 
 // Nama file database dan lokasi folder publik (root)
 const DATA_FILE = path.join(__dirname, 'tickets.json'); 
