@@ -1,19 +1,20 @@
-// server.js - Versi MongoDB
+// server.js - Versi Final WAN (Fix 404 dan MongoDB)
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose'); // <--- IMPORT MOONGOSE
+const mongoose = require('mongoose'); 
 const path = require('path');
 
 const app = express();
+// Gunakan process.env.PORT yang disediakan oleh Railway, atau default 3000
 const PORT = process.env.PORT || 3000; 
 const PUBLIC_DIR = path.join(__dirname);
 
 // --- KONFIGURASI MONGODB ---
-// GANTI DENGAN CONNECTION STRING DARI MONGODB ATLAS ANDA
-const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:<db_password>@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
+// GANTI <db_password> DENGAN PASSWORD ASLI ANDA
+const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:ANDA_GANTI_PASSWORD_DI_SINI@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
 
-// 1. Definisikan Schema Tiket (Struktur Data)
+// Definisikan Schema Tiket (Struktur Data)
 const tiketSchema = new mongoose.Schema({
     id: { type: Number, required: true, unique: true },
     tanggal_waktu: { type: Date, default: Date.now },
@@ -24,39 +25,45 @@ const tiketSchema = new mongoose.Schema({
     deskripsi: { type: String, required: true }
 });
 
-// 2. Buat Model MongoDB
-const Tiket = mongoose.model('Tiket', tiketSchema, 'tickets'); // 'tickets' adalah nama collection di DB
+// Buat Model MongoDB
+const Tiket = mongoose.model('Tiket', tiketSchema, 'tickets'); 
 
 // Koneksi ke MongoDB
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Koneksi ke MongoDB berhasil!'))
-    .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err));
+    .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err.message));
 
-// Middleware
+
+// Middleware untuk memparsing data formulir
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware untuk menyajikan file statis (CSS, index.html, success.html)
 app.use(express.static(PUBLIC_DIR)); 
 
-// Pastikan root path ('/') selalu melayani index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-// ----------------------
 
-// ENDPOINT KIRIM TIKET
-app.post('/kirim-tiket', async (req, res) => { // Fungsi harus ASYNC
+// --- FIX 404 NOT FOUND ---
+// Route eksplisit untuk memastikan root path ('/') selalu melayani index.html
+app.get('/', (req, res) => {
+    // Mengirim file index.html dari direktori saat ini
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+});
+// -------------------------
+
+
+// ENDPOINT UNTUK MENERIMA TIKET MASALAH
+app.post('/kirim-tiket', async (req, res) => {
     const dataTiket = req.body;
     
-    // Buat objek tiket baru untuk disimpan di DB
     const newTiket = new Tiket({
-        id: Date.now(), // Gunakan timestamp sebagai ID
+        id: Date.now(), 
         ...dataTiket 
     });
 
     console.log('Tiket Baru Diterima:', newTiket);
 
     try {
-        // 3. Simpan Tiket ke MongoDB
-        await newTiket.save(); // Menggunakan fungsi save() dari Mongoose
+        // Simpan Tiket ke MongoDB
+        await newTiket.save();
         console.log('Tiket berhasil disimpan ke MongoDB');
         
         // Kirim Respons Redirect ke success.html
