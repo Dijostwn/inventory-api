@@ -1,20 +1,2 @@
 [
-  {
-    "id": 1734000123456,
-    "tanggal_waktu": "2025-12-10T07:05:00.123Z",
-    "status": "Open",
-    "nama_pelapor": "Budi Santoso",
-    "departemen": "Finance",
-    "kategori_masalah": "Jaringan",
-    "deskripsi": "Internet mati total di lantai 3 sejak pagi. Tidak bisa login ke sistem keuangan."
-  },
-  {
-    "id": 1734000123789,
-    "tanggal_waktu": "2025-12-10T07:10:30.456Z",
-    "status": "Open",
-    "nama_pelapor": "Ani Wijaya",
-    "departemen": "HRD",
-    "kategori_masalah": "Hardware",
-    "deskripsi": "Monitor komputer saya berkedip-kedip saat saya buka aplikasi HRIS. Sudah saya restart, tapi masih sama."
-  }
 ]
