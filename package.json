@@ -1,7 +1,7 @@
 {
-  "name": "aplikasi-pelamar",
+  "name": "aplikasi-tiket-it",
   "version": "1.0.0",
-  "description": "Aplikasi server untuk memproses data formulir.",
+  "description": "Aplikasi server untuk memproses tiket masalah IT.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
