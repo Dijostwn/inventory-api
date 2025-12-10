@@ -1,70 +1,67 @@
-// server.js
+// server.js - Versi MongoDB
+
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const mongoose = require('mongoose'); // <--- IMPORT MOONGOSE
 const path = require('path');
 
 const app = express();
-// Menggunakan port 3000 untuk lokal, atau menggunakan PORT dari environment
-const PORT = process.env.PORT || 80; 
+const PORT = process.env.PORT || 3000; 
+const PUBLIC_DIR = path.join(__dirname);
 
-// Nama file database dan lokasi folder publik (root)
-const DATA_FILE = path.join(__dirname, 'tickets.json'); 
-const PUBLIC_DIR = path.join(__dirname); 
+// --- KONFIGURASI MONGODB ---
+// GANTI DENGAN CONNECTION STRING DARI MONGODB ATLAS ANDA
+const MONGODB_URI = 'YOUR_MONGODB_CONNECTION_STRING'; 
 
-// Middleware untuk memparsing data formulir (application/x-www-form-urlencoded)
+// 1. Definisikan Schema Tiket (Struktur Data)
+const tiketSchema = new mongoose.Schema({
+    id: { type: Number, required: true, unique: true },
+    tanggal_waktu: { type: Date, default: Date.now },
+    status: { type: String, default: 'Open' },
+    nama_pelapor: { type: String, required: true },
+    departemen: { type: String, required: true },
+    kategori_masalah: { type: String, required: true },
+    deskripsi: { type: String, required: true }
+});
+
+// 2. Buat Model MongoDB
+const Tiket = mongoose.model('Tiket', tiketSchema, 'tickets'); // 'tickets' adalah nama collection di DB
+
+// Koneksi ke MongoDB
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Koneksi ke MongoDB berhasil!'))
+    .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err));
+
+
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Middleware untuk menyajikan file statis (index.html, success.html, dll.)
 app.use(express.static(PUBLIC_DIR)); 
 
-// ----------------------------------------------------------------
-// ENDPOINT UNTUK MENERIMA TIKET MASALAH
-// ----------------------------------------------------------------
-app.post('/kirim-tiket', (req, res) => {
+// ENDPOINT KIRIM TIKET
+app.post('/kirim-tiket', async (req, res) => { // Fungsi harus ASYNC
     const dataTiket = req.body;
     
-    const newTiket = {
-        id: Date.now(),
-        tanggal_waktu: new Date().toISOString(),
-        status: 'Open',
+    // Buat objek tiket baru untuk disimpan di DB
+    const newTiket = new Tiket({
+        id: Date.now(), // Gunakan timestamp sebagai ID
         ...dataTiket 
-    };
+    });
 
     console.log('Tiket Baru Diterima:', newTiket);
 
-    // 1. Baca data yang sudah ada dari tickets.json
-    let daftarTiket = [];
     try {
-        if (fs.existsSync(DATA_FILE)) {
-            const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
-            if (fileContent.length > 0) {
-                daftarTiket = JSON.parse(fileContent);
-            }
-        }
-    } catch (error) {
-        console.error('Error membaca atau parsing tickets.json:', error.message);
-        daftarTiket = []; 
-    }
-
-    // 2. Tambahkan tiket baru
-    daftarTiket.push(newTiket);
-
-    // 3. Tulis kembali ke file tickets.json dan kirim respons
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(daftarTiket, null, 2), 'utf8');
-        console.log('Tiket berhasil disimpan ke tickets.json');
+        // 3. Simpan Tiket ke MongoDB
+        await newTiket.save(); // Menggunakan fungsi save() dari Mongoose
+        console.log('Tiket berhasil disimpan ke MongoDB');
         
-        // ----------------------------------------------------------------
-        // MODIFIKASI: Mengalihkan pengguna ke halaman success.html
-        // ----------------------------------------------------------------
+        // Kirim Respons Redirect ke success.html
         res.redirect('/success.html'); 
         
-    } catch (writeError) {
-        console.error('Error menulis ke tickets.json:', writeError.message);
+    } catch (dbError) {
+        console.error('Error saat menyimpan tiket ke DB:', dbError.message);
         
         // Mengirim respons error jika gagal menyimpan data
-        res.status(500).send('<h1>Terjadi Kesalahan Server</h1><p>Gagal menyimpan data tiket. Silakan hubungi admin.</p>');
+        res.status(500).send('<h1>Terjadi Kesalahan Server</h1><p>Gagal menyimpan data tiket ke Database.</p>');
     }
 });
 
