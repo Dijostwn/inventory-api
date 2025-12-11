@@ -11,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000; 
 const PUBLIC_DIR = path.join(__dirname);
 const KARYAWAN_FILE = 'DAFTAR KARYAWAN SYMPHOS 051125.xlsx - Sheet1.csv'; 
+fs.createReadStream(KARYAWAN_FILE)
 
 // GANTI DENGAN PASSWORD ASLI ANDA
 const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:garmin05@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
