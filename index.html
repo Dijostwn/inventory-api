@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Tiket Masalah IT</title>
+    
+    <style>
+        /* CSS Dasar & Reset */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f7f9fc; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Container Formulir */
+        .form-container {
+            width: 100%;
+            max-width: 550px; /* Dibuat sedikit lebih lebar untuk deskripsi */
+            padding: 35px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-top: 5px solid #dc3545; /* Mengganti aksen warna menjadi merah (ala urgensi IT) */
+        }
+
+        /* Heading */
+        h1 {
+            color: #1a1a2e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        /* Label */
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* Input, Select, & Textarea Fields */
+        input[type="text"], 
+        input[type="email"], 
+        select,
+        textarea { /* Menambahkan styling untuk textarea */
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            resize: vertical; /* Memungkinkan pengguna mengubah ukuran vertikal */
+            min-height: 120px;
+        }
+
+        input:focus, 
+        select:focus,
+        textarea:focus {
+            border-color: #dc3545; /* Efek fokus warna merah */
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15); 
+            outline: none;
+            background-color: #fff;
+        }
+
+        /* Button */
+        button {
+            background-color: #dc3545; /* Tombol merah untuk Kirim Tiket */
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 25px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #c82333;
+            box-shadow: 0 4px 10px rgba(200, 35, 51, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>🚨 Buat Tiket Masalah IT</h1>
+        
+        <form action="/kirim-tiket" method="POST"> 
+            
+            <div class="form-group">
+                <label for="nama_pelapor">Nama Pelapor:</label>
+                <input type="text" id="nama_pelapor" name="nama_pelapor" placeholder="Nama Anda" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="departemen">Departemen:</label>
+                <select id="departemen" name="departemen" required>
+                    <option value="" disabled selected>-- Pilih Departemen Anda --</option>
+                    <option value="HRD">HRD</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Purchasing">Purchasing</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="kategori">Kategori Masalah:</label>
+                <select id="kategori" name="kategori_masalah" required>
+                    <option value="" disabled selected>-- Pilih Kategori Masalah --</option>
+                    <option value="Jaringan">Jaringan/Internet</option>
+                    <option value="Hardware">Hardware (Komputer/Printer/Monitor)</option>
+                    <option value="Software">Software/Aplikasi (OS/Office)</option>
+                    <option value="Akun">Akun/Password</option>
+                    <option value="Email">Email</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deskripsi">Deskripsi Masalah (Jelaskan Sedetail Mungkin):</label>
+                <textarea id="deskripsi" name="deskripsi" placeholder="Contoh: Printer di ruang Finance tidak terdeteksi di komputer saya sejak jam 10 pagi." required></textarea>
+            </div>
+
+            <button type="submit">Kirim Tiket Masalah</button>
+        </form>
+        
+    </div>
+</body>
+</html>
