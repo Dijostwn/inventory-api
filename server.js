@@ -1,22 +1,23 @@
-// server.js - Versi Final (MongoDB, Fix 404, dan Pencarian Karyawan)
+// server.js - FIX 3 (Menghapus Baris Redundant dan Memastikan File Loading)
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose'); 
 const path = require('path');
 const fs = require('fs');
-const csv = require('csv-parser'); // Diperlukan untuk membaca CSV
+const csv = require('csv-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
 const PUBLIC_DIR = path.join(__dirname);
-const KARYAWAN_FILE = 'DAFTAR KARYAWAN SYMPHOS 051125.xlsx - Sheet1.csv'; 
-fs.createReadStream(KARYAWAN_FILE)
 
-// GANTI DENGAN PASSWORD ASLI ANDA
+// --- NAMA FILE CSV (PASTIKAN NAMA INI SAMA PERSIS DI GITHUB) ---
+const KARYAWAN_FILE = 'DAFTAR KARYAWAN SYMPHOS 051125.xlsx - Sheet1.csv'; 
+
+// --- KONFIGURASI MONGODB ---
 const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:garmin05@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
 
-// Definisikan Schema Tiket (Struktur Data)
+// Definisikan Schema Tiket
 const tiketSchema = new mongoose.Schema({
     id: { type: Number, required: true, unique: true },
     tanggal_waktu: { type: Date, default: Date.now },
@@ -37,24 +38,30 @@ mongoose.connect(MONGODB_URI)
 
 // --- MEMBACA DATA KARYAWAN DARI CSV SAAT SERVER STARTUP ---
 const dataKaryawan = [];
-fs.createReadStream(KARYAWAN_FILE)
-  .pipe(csv())
-  .on('data', (data) => {
-    // Memformat data menjadi NIKA dan NAMA
-    // Asumsi header CSV adalah NO, NIKA, NAMA
-    if (data.NIKA && data.NAMA) {
-        dataKaryawan.push({
-            nika: data.NIKA.trim(),
-            nama: data.NAMA.trim()
+
+// Tambahkan try-catch/if check untuk memastikan file ada
+if (fs.existsSync(KARYAWAN_FILE)) {
+    fs.createReadStream(KARYAWAN_FILE)
+        .pipe(csv())
+        .on('data', (data) => {
+            if (data.NIKA && data.NAMA) {
+                dataKaryawan.push({
+                    nika: data.NIKA.trim(),
+                    nama: data.NAMA.trim()
+                });
+            }
+        })
+        .on('end', () => {
+            console.log(`✅ ${dataKaryawan.length} data karyawan berhasil dimuat.`);
+        })
+        .on('error', (err) => {
+             // Jika terjadi error saat membaca (bukan saat membuka)
+            console.error('🛑 Error saat memproses CSV:', err.message);
         });
-    }
-  })
-  .on('end', () => {
-    console.log(`✅ ${dataKaryawan.length} data karyawan berhasil dimuat.`);
-  })
-  .on('error', (err) => {
-    console.error('🛑 Gagal membaca file CSV:', err.message);
-  });
+} else {
+    // Pesan jika file tidak ditemukan
+    console.error(`🛑 FILE TIDAK DITEMUKAN: ${KARYAWAN_FILE}. Pencarian Karyawan tidak akan berfungsi.`);
+}
 // -----------------------------------------------------------
 
 
@@ -63,9 +70,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(PUBLIC_DIR)); 
 
 
-// --- ENDPOINT UNTUK FRONTEND (Pencarian Karyawan) ---
+// --- ENDPOINT UNTUK FRONTEND ---
 app.get('/data-karyawan', (req, res) => {
-    // Mengirimkan array data karyawan yang sudah dimuat
     res.json(dataKaryawan);
 });
 
@@ -76,11 +82,10 @@ app.get('/', (req, res) => {
 });
 
 
-// ENDPOINT UNTUK MENERIMA TIKET MASALAH
+// ENDPOINT POST TIKET
 app.post('/kirim-tiket', async (req, res) => {
     const dataTiket = req.body;
     
-    // Pastikan nama_pelapor yang dikirim adalah nama, bukan NIKA
     if (!dataTiket.nama_pelapor) {
         return res.status(400).send('Nama Pelapor wajib diisi.');
     }
