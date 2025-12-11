@@ -12,7 +12,7 @@ const PUBLIC_DIR = path.join(__dirname);
 
 // --- KONFIGURASI MONGODB ---
 // GANTI <db_password> DENGAN PASSWORD ASLI ANDA
-const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:<db_password>@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
+const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:<garmin05>@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
 
 // Definisikan Schema Tiket (Struktur Data)
 const tiketSchema = new mongoose.Schema({
