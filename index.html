@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Tiket Masalah IT</title>
+    
     <style>
         /* CSS Dasar & Reset */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f7f9fc;
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f7f9fc; 
             margin: 0;
             padding: 0;
             display: flex;
@@ -16,6 +17,8 @@
             align-items: center;
             min-height: 100vh;
         }
+
+        /* Container Formulir */
         .form-container {
             width: 100%;
             max-width: 550px;
@@ -23,8 +26,10 @@
             background-color: #ffffff;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border-top: 5px solid #dc3545;
+            border-top: 5px solid #dc3545; /* Aksen warna merah */
         }
+
+        /* Heading */
         h1 {
             color: #1a1a2e;
             text-align: center;
@@ -32,9 +37,13 @@
             font-size: 1.8em;
             font-weight: 700;
         }
+
+        /* Form Group */
         .form-group {
             margin-bottom: 25px;
         }
+
+        /* Label */
         label {
             display: block;
             margin-bottom: 6px;
@@ -42,8 +51,10 @@
             color: #555;
             font-size: 0.9em;
         }
-        input[type="text"],
-        input[type="email"],
+
+        /* Input, Select, & Textarea Fields */
+        input[type="text"], 
+        input[type="email"], 
         select,
         textarea {
             width: 100%;
@@ -55,18 +66,22 @@
             color: #333;
             transition: all 0.3s ease;
         }
+
         textarea {
             resize: vertical;
             min-height: 120px;
         }
-        input:focus,
+
+        input:focus, 
         select:focus,
         textarea:focus {
             border-color: #dc3545;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15); 
             outline: none;
             background-color: #fff;
         }
+
+        /* Button */
         button {
             background-color: #dc3545;
             color: white;
@@ -80,6 +95,7 @@
             margin-top: 25px;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
+
         button:hover {
             background-color: #c82333;
             box-shadow: 0 4px 10px rgba(200, 35, 51, 0.3);
@@ -90,17 +106,13 @@
     <div class="form-container">
         <h1>🚨 Buat Tiket Masalah IT</h1>
         
-        <form action="/kirim-tiket" method="POST">
+        <form action="/kirim-tiket" method="POST"> 
             
-    <div class="form-group">
-        <label for="nama_pelapor">Nama Pelapor:</label>
-            <input type="text" id="nama_pelapor" name="nama_pelapor" placeholder="Nama Anda" required>
-                </div>
-                
-                <datalist id="dataListKaryawan"></datalist>
-
-                <input type="hidden" id="nama_pelapor" name="nama_pelapor">
+            <div class="form-group">
+                <label for="nama_pelapor">Nama Pelapor:</label>
+                <input type="text" id="nama_pelapor" name="nama_pelapor" placeholder="Nama Anda" required>
             </div>
+            
             <div class="form-group">
                 <label for="departemen">Departemen:</label>
                 <select id="departemen" name="departemen" required>
@@ -141,56 +153,5 @@
         </form>
         
     </div>
-
-<script>
-    const dataList = document.getElementById('dataListKaryawan');
-    const inputCari = document.getElementById('nama_pelapor_input');
-    const inputHidden = document.getElementById('nama_pelapor');
-
-    // 1. Ambil Data Karyawan dari Server API
-    fetch('/data-karyawan')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Gagal mengambil data karyawan dari server.');
-            }
-            return response.json();
-        })
-        .then(dataKaryawan => {
-            console.log('Data Karyawan Dimuat:', dataKaryawan.length);
-            
-            // 2. Isi DataList
-            dataKaryawan.forEach(karyawan => {
-                const option = document.createElement('option');
-                // Format yang ditampilkan: NIKA - NAMA
-                option.value = `${karyawan.nika} - ${karyawan.nama}`;
-                dataList.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error in fetch:', error.message));
-
-    // 3. Tangani Pemilihan Nilai dan Transfer ke Hidden Input
-    inputCari.addEventListener('change', function() {
-        const selectedValue = this.value; // Contoh: "6001 - JODI SETIAWAN"
-        
-        // Cek apakah nilai yang diketik/dipilih ada di dataList
-        const option = dataList.querySelector(`option[value="${selectedValue}"]`);
-        
-        if (option) {
-            // Jika ada (berarti user memilih dari daftar), ambil bagian NAMA-nya saja
-            const nama = selectedValue.split(' - ').slice(1).join(' - ');
-            inputHidden.value = nama.trim();
-        } else {
-            // Jika user mengetik dan nilainya tidak ada di daftar (opsional, bisa dibiarkan)
-            // Dalam kasus ini, kita kirimkan saja nilai yang diketik
-            inputHidden.value = selectedValue.trim(); 
-        }
-    });
-
-    // Opsional: Untuk memastikan input hidden terisi walau user tidak memilih dari dropdown
-    inputCari.addEventListener('input', function() {
-        // Ini memastikan input hidden selalu terisi, penting untuk validasi required
-        inputHidden.value = this.value.trim();
-    });
-</script>
 </body>
 </html>
