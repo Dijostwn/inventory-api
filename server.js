@@ -1,20 +1,18 @@
-// server.js - FIX 3 (Menghapus Baris Redundant dan Memastikan File Loading)
+// server.js - Versi Bersih (Hanya MongoDB & Express)
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose'); 
 const path = require('path');
-const fs = require('fs');
-const csv = require('csv-parser');
+// const fs = require('fs'); // TIDAK DIGUNAKAN LAGI
+// const csv = require('csv-parser'); // TIDAK DIGUNAKAN LAGI
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
 const PUBLIC_DIR = path.join(__dirname);
 
-// --- NAMA FILE CSV (PASTIKAN NAMA INI SAMA PERSIS DI GITHUB) ---
-const KARYAWAN_FILE = 'DAFTAR KARYAWAN SYMPHOS 051125.xlsx - Sheet1.csv'; 
-
 // --- KONFIGURASI MONGODB ---
+// Password sudah dimasukkan oleh user
 const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:garmin05@cluster0.hzrbv1e.mongodb.net/?appName=Cluster0';
 
 // Definisikan Schema Tiket
@@ -36,47 +34,14 @@ mongoose.connect(MONGODB_URI)
     .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err.message));
 
 
-// --- MEMBACA DATA KARYAWAN DARI CSV SAAT SERVER STARTUP ---
-const dataKaryawan = [];
-
-// Tambahkan try-catch/if check untuk memastikan file ada
-if (fs.existsSync(KARYAWAN_FILE)) {
-    fs.createReadStream(KARYAWAN_FILE)
-        .pipe(csv())
-        .on('data', (data) => {
-            if (data.NIKA && data.NAMA) {
-                dataKaryawan.push({
-                    nika: data.NIKA.trim(),
-                    nama: data.NAMA.trim()
-                });
-            }
-        })
-        .on('end', () => {
-            console.log(`✅ ${dataKaryawan.length} data karyawan berhasil dimuat.`);
-        })
-        .on('error', (err) => {
-             // Jika terjadi error saat membaca (bukan saat membuka)
-            console.error('🛑 Error saat memproses CSV:', err.message);
-        });
-} else {
-    // Pesan jika file tidak ditemukan
-    console.error(`🛑 FILE TIDAK DITEMUKAN: ${KARYAWAN_FILE}. Pencarian Karyawan tidak akan berfungsi.`);
-}
-// -----------------------------------------------------------
-
-
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+// Middleware untuk melayani file statis (index.html, success.html)
 app.use(express.static(PUBLIC_DIR)); 
 
 
-// --- ENDPOINT UNTUK FRONTEND ---
-app.get('/data-karyawan', (req, res) => {
-    res.json(dataKaryawan);
-});
-
-
 // --- FIX 404 NOT FOUND ---
+// Melayani index.html saat domain diakses
 app.get('/', (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
@@ -98,6 +63,7 @@ app.post('/kirim-tiket', async (req, res) => {
     try {
         await newTiket.save();
         console.log('Tiket berhasil disimpan ke MongoDB oleh:', newTiket.nama_pelapor);
+        // Arahkan ke halaman sukses
         res.redirect('/success.html'); 
         
     } catch (dbError) {
