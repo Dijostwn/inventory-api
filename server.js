@@ -1,4 +1,4 @@
-// server.js - Versi Final Anti-Error
+// server.js - Versi Final Anti-404
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose'); 
@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.join(__dirname);
 
 // --- KONFIGURASI MONGODB ---
-// Saya tambahkan nama database 'helpdesk' agar data tersimpan rapi
+// Saya tambahkan nama database 'helpdesk' supaya data tersimpan rapi
 const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:garmin05@cluster0.hzrbv1e.mongodb.net/helpdesk?appName=Cluster0';
 
 // Schema Tiket
@@ -33,31 +33,26 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Koneksi ke MongoDB berhasil!'))
     .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err.message));
 
-// --- FUNGSI TELEGRAM ---
+// --- FUNGSI NOTIFIKASI TELEGRAM ---
 async function sendTelegramNotification(tiket) {
-    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
-    const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
 
-    if (!BOT_TOKEN || !CHAT_ID) {
-        console.log('⚠️ Token/ChatID Telegram belum diatur di Environment Variables. Notifikasi dilewati.');
+    if (!token || !chatId) {
+        console.log('⚠️ Token/ChatID Telegram tidak ada di Environment Variables. Lewati notifikasi.');
         return;
     }
 
-    const pesan = `
-🚀 *TIKET BARU MASUK* 🚀
-----------------------------
-👤 *Pelapor:* ${tiket.nama_pelapor}
-🏢 *Dept:* ${tiket.departemen}
-📂 *Kategori:* ${tiket.kategori_masalah}
-📝 *Masalah:* ${tiket.deskripsi}
-📌 *Status:* ${tiket.status}
-----------------------------
-`;
+    const message = `🚨 *TIKET BARU MASUK* 🚨\n\n` +
+                    `*Nama:* ${tiket.nama_pelapor}\n` +
+                    `*Dept:* ${tiket.departemen}\n` +
+                    `*Kategori:* ${tiket.kategori_masalah}\n\n` +
+                    `*Deskripsi:* ${tiket.deskripsi}`;
 
     try {
-        await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            chat_id: CHAT_ID,
-            text: pesan,
+        await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+            chat_id: chatId,
+            text: message,
             parse_mode: 'Markdown'
         });
         console.log('✅ Notifikasi Telegram terkirim!');
@@ -74,4 +69,43 @@ app.use(express.static(ROOT_DIR));
 
 // Halaman Utama
 app.get('/', (req, res) => {
-    res.sendFile(path.join(ROOT_DIR
+    res.sendFile(path.join(ROOT_DIR, 'index.html'));
+});
+
+// Jalur manual untuk success.html (Supaya tidak ada lagi "Cannot GET")
+app.get('/success.html', (req, res) => {
+    res.sendFile(path.join(ROOT_DIR, 'success.html'));
+});
+
+// Endpoint POST Tiket
+app.post('/kirim-tiket', async (req, res) => {
+    try {
+        const dataTiket = req.body;
+        
+        if (!dataTiket.nama_pelapor) {
+            return res.status(400).send('Nama Pelapor wajib diisi.');
+        }
+
+        const newTiket = new Tiket({
+            id: Date.now(), 
+            ...dataTiket 
+        });
+
+        await newTiket.save();
+        console.log('✅ Tiket tersimpan dari:', newTiket.nama_pelapor);
+        
+        // Kirim telegram (tidak pakai await supaya response user cepat)
+        sendTelegramNotification(newTiket);
+
+        // LANGSUNG KIRIM FILE SUCCESS (Anti-Error Redirect)
+        res.sendFile(path.join(ROOT_DIR, 'success.html')); 
+        
+    } catch (dbError) {
+        console.error('❌ Error Database:', dbError.message);
+        res.status(500).send('<h1>Error</h1><p>Gagal simpan data ke database.</p>');
+    }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server jalan di port ${PORT}`);
+});
