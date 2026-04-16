@@ -109,3 +109,5 @@ app.post('/kirim-tiket', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server jalan di port ${PORT}`);
 });
+
+module.exports = app;
