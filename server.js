@@ -13,7 +13,7 @@ const ROOT_DIR = path.join(__dirname);
 
 // --- KONFIGURASI MONGODB ---
 // Saya tambahkan nama database 'helpdesk' supaya data tersimpan rapi
-const MONGODB_URI = 'mongodb+srv://jodisetiawan89_db_user:garmin05@cluster0.hzrbv1e.mongodb.net/helpdesk?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Schema Tiket
 const tiketSchema = new mongoose.Schema({
