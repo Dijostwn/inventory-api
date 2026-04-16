@@ -34,7 +34,7 @@ mongoose.connect(MONGODB_URI)
     .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err.message));
 
 // --- FUNGSI NOTIFIKASI TELEGRAM ---
-await sendTelegramNotification(newTiket) {
+async function sendTelegramNotification(tiket) {
     const token = process.env.TELEGRAM_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -95,7 +95,7 @@ app.post('/kirim-tiket', async (req, res) => {
         console.log('✅ Tiket tersimpan dari:', newTiket.nama_pelapor);
         
         // Kirim telegram (tidak pakai await supaya response user cepat)
-        sendTelegramNotification(newTiket);
+        await sendTelegramNotification(newTiket);
 
         // LANGSUNG KIRIM FILE SUCCESS (Anti-Error Redirect)
         res.sendFile(path.join(ROOT_DIR, 'success.html')); 
