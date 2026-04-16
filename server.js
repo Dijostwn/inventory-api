@@ -34,7 +34,7 @@ mongoose.connect(MONGODB_URI)
     .catch(err => console.error('🛑 Gagal koneksi ke MongoDB:', err.message));
 
 // --- FUNGSI NOTIFIKASI TELEGRAM ---
-async function sendTelegramNotification(tiket) {
+await sendTelegramNotification(newTiket); {
     const token = process.env.TELEGRAM_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
