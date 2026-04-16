@@ -35,8 +35,8 @@ mongoose.connect(MONGODB_URI)
 
 // --- FUNGSI NOTIFIKASI TELEGRAM ---
 async function sendTelegramNotification(tiket) {
-    const token = '8511447045:AAHcvn1R_1aWWV9I0lT6K8FgB23Sz1GV15Y';
-    const chatId = '8511447045';
+    const token = process.env.TELEGRAM_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !chatId) {
         console.log('⚠️ Token/ChatID Telegram tidak ada di Environment Variables. Lewati notifikasi.');
