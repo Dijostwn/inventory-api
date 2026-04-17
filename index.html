@@ -15,6 +15,7 @@
         .forgot { color: white; text-decoration: underline; font-size: 0.9rem; margin-bottom: 25px; cursor: pointer; }
         .login-btn { width: 100%; max-width: 350px; padding: 15px; background: white; border: none; border-radius: 30px; color: #c00000; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .login-btn:hover { background: #f0f0f0; transform: scale(1.02); }
+        /* Pastikan file gambar ini ada di folder yang sama di GitHub */
         .image-section { flex: 1.5; height: 100%; background: url('WhatsApp Image 2026-04-17 at 15.36.10.jpeg') no-repeat center center; background-size: cover; border-radius: 60px; }
         @media (max-width: 768px) { .image-section { display: none; } }
     </style>
@@ -39,4 +40,12 @@
 
     <script>
         function checkLogin() {
-            const userInput = document.getElementById
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            // Validasi sederhana: input tidak boleh kosong
+            if (user !== "" && pass !== "") {
+                // Berpindah ke halaman login.html
+                window.location.href = "login.html";
+            } else {
+                alert("Masukkan username dan password terlebih dahulu!");
