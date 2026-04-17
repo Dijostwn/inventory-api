@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELTRAF - Login</title>
+    <title>WELTRAF - Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -13,12 +13,13 @@
         }
 
         body {
-            background-color: #c00000; /* Warna merah sesuai gambar rujukan */
+            background-color: #c00000;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
+            overflow: hidden;
         }
 
         .login-container {
@@ -29,7 +30,6 @@
             align-items: center;
         }
 
-        /* Bagian Kiri: Form Login */
         .login-form-section {
             flex: 1;
             padding: 50px;
@@ -46,49 +46,39 @@
             font-weight: 500;
         }
 
-        .input-group {
-            width: 100%;
-            max-width: 350px;
-            margin-bottom: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px 20px;
-            background: white; /* Input putih sesuai gambar */
-            border: 2px solid #ddd;
-            border-radius: 15px; /* Sudut melengkung halus */
-            color: #333;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .forgot-password {
-            color: white;
-            text-decoration: underline;
-            font-size: 0.9rem;
-            margin-bottom: 25px;
-            display: block;
+        .message-box {
+            background: white;
+            color: #c00000;
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
-        }
-
-        .login-btn {
             width: 100%;
-            max-width: 350px;
-            padding: 15px;
-            background-color: white; /* Tombol putih */
-            border: none;
-            border-radius: 30px;
-            color: #c00000; /* Teks merah */
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+            max-width: 400px;
         }
 
-        .login-btn:hover {
-            background-color: #f0f0f0;
-            transform: translateY(-2px);
+        .image-section {
+            flex: 1.5;
+            height: 100%;
+            background: url('WhatsApp Image 2026-04-17 at 15.36.10.jpeg') no-repeat center center;
+            background-size: cover;
+            border-radius: 60px;
         }
 
-        /*
+        @media (max-width: 768px) {
+            .image-section { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form-section">
+            <h1>WELCOME BACK</h1>
+            <div class="message-box">
+                <h2>Login Berhasil!</h2>
+                <p>Selamat datang di sistem WELTRAF.</p>
+            </div>
+        </div>
+        <div class="image-section"></div>
+    </div>
+</body>
+</html>
