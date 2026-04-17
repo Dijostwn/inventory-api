@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WELTRAF - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #c00000; /* Warna merah sesuai gambar rujukan */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-container {
+            display: flex;
+            width: 95%;
+            max-width: 1200px;
+            height: 80vh;
+            align-items: center;
+        }
+
+        /* Bagian Kiri: Form Login */
+        .login-form-section {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-form-section h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 350px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            background: white; /* Input putih sesuai gambar */
+            border: 2px solid #ddd;
+            border-radius: 15px; /* Sudut melengkung halus */
+            color: #333;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .forgot-password {
+            color: white;
+            text-decoration: underline;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            display: block;
+            text-align: center;
+        }
+
+        .login-btn {
+            width: 100%;
+            max-width: 350px;
+            padding: 15px;
+            background-color: white; /* Tombol putih */
+            border: none;
+            border-radius: 30px;
+            color: #c00000; /* Teks merah */
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        /*
