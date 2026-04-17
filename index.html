@@ -24,10 +24,10 @@
             <h1>WELTRAF</h1>
             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="username" required>
+                    <input type="text" id="username" placeholder="username">
                 </div>
                 <div class="input-group">
-                    <input type="password" id="password" placeholder="password" required>
+                    <input type="password" id="password" placeholder="password">
                 </div>
                 <br>
                 <button type="button" onclick="checkLogin()" class="login-btn">LOGIN</button>
@@ -38,14 +38,14 @@
 
     <script>
         function checkLogin() {
-            var user = document.getElementById('username').value;
-            var pass = document.getElementById('password').value;
+            var u = document.getElementById('username').value;
+            var p = document.getElementById('password').value;
 
-            if (user.trim() !== "" && pass.trim() !== "") {
-                // Mengarahkan ke file login.html yang sudah ada di GitHub Anda
+            // Selama username & password diisi (apa saja), akan pindah ke login.html
+            if (u.trim() !== "" && p.trim() !== "") {
                 window.location.href = "login.html";
             } else {
-                alert("Silakan isi username dan password!");
+                alert("Isi dulu username dan password-nya!");
             }
         }
     </script>
