@@ -3,82 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELTRAF - Dashboard</title>
+    <title>WELTRAF - Success</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #c00000;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            overflow: hidden;
-        }
-
-        .login-container {
-            display: flex;
-            width: 95%;
-            max-width: 1200px;
-            height: 80vh;
-            align-items: center;
-        }
-
-        .login-form-section {
-            flex: 1;
-            padding: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-form-section h1 {
-            font-size: 3rem;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .message-box {
-            background: white;
-            color: #c00000;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .image-section {
-            flex: 1.5;
-            height: 100%;
-            background: url('WhatsApp Image 2026-04-17 at 15.36.10.jpeg') no-repeat center center;
-            background-size: cover;
-            border-radius: 60px;
-        }
-
-        @media (max-width: 768px) {
-            .image-section { display: none; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #c00000; height: 100vh; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; }
+        .container { text-align: center; background: white; color: #c00000; padding: 50px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { margin-bottom: 20px; }
+        .back-btn { margin-top: 20px; padding: 10px 20px; background: #c00000; color: white; border: none; border-radius: 10px; cursor: pointer; text-decoration: none; display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-form-section">
-            <h1>WELCOME BACK</h1>
-            <div class="message-box">
-                <h2>Login Berhasil!</h2>
-                <p>Selamat datang di sistem WELTRAF.</p>
-            </div>
-        </div>
-        <div class="image-section"></div>
+    <div class="container">
+        <h1>LOGIN BERHASIL!</h1>
+        <p>Selamat Datang di Sistem Weltraf.</p>
+        <a href="index.html" class="back-btn">Kembali ke Login</a>
     </div>
 </body>
 </html>
