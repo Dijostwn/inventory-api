@@ -42,11 +42,11 @@
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
 
-            // Jika username dan password tidak kosong, pindah ke login.html
             if (user.trim() !== "" && pass.trim() !== "") {
-                window.location.href = "login.html";
+                // Pastikan nama file di GitHub kamu adalah 'login.html' (huruf kecil semua)
+                window.location.href = "login.html"; 
             } else {
-                alert("Silakan masukkan username dan password!");
+                alert("Silakan isi username dan password!");
             }
         }
     </script>
