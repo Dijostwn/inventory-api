@@ -38,14 +38,14 @@
 
     <script>
         function checkLogin() {
-            var u = document.getElementById('username').value;
-            var p = document.getElementById('password').value;
-            
-            if (u.trim() !== "" && p.trim() !== "") {
-                // Pindah ke file login.html (pastikan nama file di GitHub sama persis)
+            var user = document.getElementById('username').value;
+            var pass = document.getElementById('password').value;
+
+            if (user.trim() !== "" && pass.trim() !== "") {
+                // Mengarahkan ke file login.html yang sudah ada di GitHub Anda
                 window.location.href = "login.html";
             } else {
-                alert("Masukkan username dan password!");
+                alert("Silakan isi username dan password!");
             }
         }
     </script>
