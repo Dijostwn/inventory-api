@@ -25,10 +25,10 @@
             <h1>WELTRAF</h1>
             <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="username">
+                    <input type="text" id="username" placeholder="username" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="password" placeholder="password">
+                    <input type="password" id="password" placeholder="password" required>
                 </div>
                 <p class="forgot">Forget Password ?</p>
                 <button type="button" onclick="checkLogin()" class="login-btn">LOGIN</button>
@@ -39,18 +39,14 @@
 
     <script>
         function checkLogin() {
-            // Ambil input
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
 
-            console.log("Tombol diklik!"); // Ini buat ngecek di F12 kalau jalan
-
-            // Cek apakah kosong atau tidak
+            // Jika username dan password tidak kosong, pindah ke login.html
             if (user.trim() !== "" && pass.trim() !== "") {
-                // Langsung pindah ke login.html
                 window.location.href = "login.html";
             } else {
-                alert("Isi dulu username dan password-nya!");
+                alert("Silakan masukkan username dan password!");
             }
         }
     </script>
