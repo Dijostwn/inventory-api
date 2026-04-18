@@ -3,10 +3,23 @@ const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
 
-// 1. KONEKSI KE MONGODB (Pastikan MONGODB_URI di Vercel sudah diisi link tadi)
+// Gunakan link MongoDB kamu
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
+  .then(() => console.log('✅ Connected to MongoDB'))
   .catch(err => console.error('🛑 DB Error:', err));
+
+app.use(express.json());
+// Baris ini sangat penting agar Vercel bisa membaca folder saat ini
+app.use(express.static(path.join(__dirname))); 
+
+// Route manual agar tidak "Cannot GET"
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ... kode route API kamu lainnya ...
+
+module.exports = app;
 
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
