@@ -2,79 +2,52 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Update Progress Trafo</title>
+    <title>Update Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center h-screen p-4">
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-sm border">
-        <h2 class="text-xl font-bold mb-6 text-center">Update Progress Trafo</h2>
-        
-        <div class="mb-4">
-            <label class="text-sm font-semibold">Nomor Order</label>
-            <input id="no_order" type="text" placeholder="Contoh: QW-001" class="w-full border p-2 rounded uppercase">
-        </div>
-
-        <div class="mb-4">
-            <label class="text-sm font-semibold">Tahapan Produksi</label>
-            <select id="tahap" class="w-full border p-2 rounded">
-                <option value="tank_making">Tank Making</option>
-                <option value="core_making">Core Making</option>
-                <option value="coil_making">Coil Making</option>
-                <option value="core_coil_assy">Core & Coil Assy</option>
-                <option value="connection">Connection</option>
-                <option value="final_assy">Final Assembly</option>
-                <option value="internal_test">Internal Test</option>
-                <option value="finishing">Finishing</option>
-                <option value="fat">FAT</option>
-            </select>
-        </div>
-
-        <div class="mb-6">
-            <label class="text-sm font-semibold">Status</label>
-            <select id="status" class="w-full border p-2 rounded">
-                <option value="Pending">Pending (Merah)</option>
-                <option value="In Progress">In Progress (Kuning)</option>
-                <option value="Selesai">Selesai (Hijau)</option>
-            </select>
-        </div>
-
-        <button onclick="updateProgress()" id="btnSave" class="w-full bg-green-700 text-white p-3 rounded font-bold hover:bg-green-800 shadow">Simpan Perubahan</button>
-        <button onclick="window.location.href='login.html'" class="w-full mt-4 text-gray-500 text-sm underline text-center block">Batal & Kembali</button>
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-sm border text-center">
+        <h2 class="text-xl font-bold mb-6">Update Progress Trafo</h2>
+        <input id="no_order" type="text" placeholder="No Order (Contoh: QW-01)" class="w-full border p-2 mb-4 rounded uppercase">
+        <select id="tahap" class="w-full border p-2 mb-4 rounded">
+            <option value="tank_making">Tank Making</option>
+            <option value="core_making">Core Making</option>
+            <option value="coil_making">Coil Making</option>
+            <option value="core_coil_assy">Core & Coil Assy</option>
+            <option value="connection">Connection</option>
+            <option value="final_assy">Final Assembly</option>
+            <option value="internal_test">Internal Test</option>
+            <option value="finishing">Finishing</option>
+            <option value="fat">FAT</option>
+        </select>
+        <select id="status" class="w-full border p-2 mb-6 rounded">
+            <option value="Pending">Pending (Merah)</option>
+            <option value="In Progress">In Progress (Kuning)</option>
+            <option value="Selesai">Selesai (Hijau)</option>
+        </select>
+        <button onclick="update()" id="btn" class="w-full bg-green-700 text-white p-3 rounded font-bold">Simpan</button>
+        <a href="login.html" class="block mt-4 text-sm underline text-gray-500">Kembali</a>
     </div>
-
     <script>
-        async function updateProgress() {
-            const btn = document.getElementById('btnSave');
+        async function update() {
+            const btn = document.getElementById('btn');
             const data = {
                 no_order: document.getElementById('no_order').value,
                 tahap: document.getElementById('tahap').value,
                 status: document.getElementById('status').value
             };
-
             if(!data.no_order) return alert("Isi No Order!");
-
-            btn.disabled = true;
-            btn.innerText = "Menyimpan...";
-
+            btn.disabled = true; btn.innerText = "Saving...";
             try {
                 const res = await fetch('/api/update-progress', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                const result = await res.json();
-                if(result.success) {
-                    alert("✅ Berhasil Diperbarui!");
-                    window.location.href = 'login.html';
-                } else {
-                    alert("❌ Gagal simpan ke database");
-                }
-            } catch (err) {
-                alert("❌ Error Server!");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Simpan Perubahan";
-            }
+                if(res.ok) { alert("✅ Berhasil!"); window.location.href='login.html'; }
+                else { alert("❌ Gagal simpan database"); }
+            } catch (err) { alert("❌ Server Error"); }
+            finally { btn.disabled = false; btn.innerText = "Simpan"; }
         }
     </script>
 </body>
