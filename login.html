@@ -39,10 +39,13 @@
             body.innerHTML = '';
             
             const getColor = (s) => {
-                if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
-                if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
-                return 'bg-red-500 text-transparent';
-            };
+    if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
+    if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
+    if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
+    
+    // Jika kosong atau belum diisi, kembalikan class kosong (warna putih/polos)
+    return 'bg-white text-transparent'; 
+};
 
             data.forEach(p => {
                 body.innerHTML += `
