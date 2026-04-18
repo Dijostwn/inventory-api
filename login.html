@@ -2,33 +2,29 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Monitoring Produksi Trafo</title>
+    <title>Dashboard Monitoring - Weltraf</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-4">
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow-lg">
+<body class="bg-gray-100 p-6">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-lg">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Monitoring Fabrikasi Trafo</h1>
-            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Update Progress</button>
+            <h1 class="text-2xl font-bold text-gray-800">Monitoring Produksi Trafo</h1>
+            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Update Progress</button>
         </div>
-
         <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-gray-300 text-center text-[11px]">
-                <thead class="bg-gray-200 uppercase">
+            <table class="w-full border-collapse border border-gray-300 text-center text-[12px]">
+                <thead class="bg-gray-200 uppercase font-bold text-gray-700">
                     <tr>
-                        <th rowspan="2" class="border p-2">No Order</th>
-                        <th colspan="6" class="border p-2">Proses Fabrikasi</th>
-                        <th rowspan="2" class="border p-2">Internal Test</th>
-                        <th rowspan="2" class="border p-2">Finishing</th>
-                        <th rowspan="2" class="border p-2">FAT</th>
-                    </tr>
-                    <tr class="bg-gray-100">
-                        <th class="border p-1">Tank</th>
-                        <th class="border p-1">Core</th>
-                        <th class="border p-1">Coil</th>
-                        <th class="border p-1">C&C Assy</th>
-                        <th class="border p-1">Conn</th>
-                        <th class="border p-1">Final</th>
+                        <th class="border p-3">No Order</th>
+                        <th class="border p-2">Tank</th>
+                        <th class="border p-2">Core</th>
+                        <th class="border p-2">Coil</th>
+                        <th class="border p-2">Assy</th>
+                        <th class="border p-2">Conn</th>
+                        <th class="border p-2">Final</th>
+                        <th class="border p-2">Test</th>
+                        <th class="border p-2">Finish</th>
+                        <th class="border p-2">FAT</th>
                     </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
@@ -38,37 +34,37 @@
 
     <script>
         async function loadData() {
-            const res = await fetch('/api/projects');
-            const data = await res.json();
-            const body = document.getElementById('table-body');
-            body.innerHTML = '';
+            try {
+                const res = await fetch('/api/projects');
+                const data = await res.json();
+                const body = document.getElementById('table-body');
+                body.innerHTML = '';
 
-           const getColor = (s) => {
-    if(s === 'Selesai') return 'bg-green-500';
-    if(s === 'In Progress') return 'bg-yellow-400';
-    return 'bg-red-500'; // Default Pending
-};
-            };
+                const getColor = (s) => {
+                    if (s === 'Selesai (Hijau)' || s === 'Selesai') return 'bg-green-500';
+                    if (s === 'In Progress (Kuning)' || s === 'In Progress') return 'bg-yellow-400';
+                    return 'bg-red-500'; 
+                };
 
-            data.forEach(p => {
-                body.innerHTML += `
-                    <tr>
-                        <td class="border p-3 font-bold bg-gray-50 uppercase">${p.no_order}</td>
-                        <td class="border p-3 ${getColor(p.tank_making)}"></td>
-                        <td class="border p-3 ${getColor(p.core_making)}"></td>
-                        <td class="border p-3 ${getColor(p.coil_making)}"></td>
-                        <td class="border p-3 ${getColor(p.core_coil_assy)}"></td>
-                        <td class="border p-3 ${getColor(p.connection)}"></td>
-                        <td class="border p-3 ${getColor(p.final_assy)}"></td>
-                        <td class="border p-3 ${getColor(p.internal_test)}"></td>
-                        <td class="border p-3 ${getColor(p.finishing)}"></td>
-                        <td class="border p-3 ${getColor(p.fat)}"></td>
-                    </tr>
-                `;
-            });
+                data.forEach(p => {
+                    body.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="border p-3 font-bold uppercase text-gray-800 bg-gray-50">${p.no_order}</td>
+                            <td class="border p-3 ${getColor(p.tank_making)}"></td>
+                            <td class="border p-3 ${getColor(p.core_making)}"></td>
+                            <td class="border p-3 ${getColor(p.coil_making)}"></td>
+                            <td class="border p-3 ${getColor(p.core_coil_assy)}"></td>
+                            <td class="border p-3 ${getColor(p.connection)}"></td>
+                            <td class="border p-3 ${getColor(p.final_assy)}"></td>
+                            <td class="border p-3 ${getColor(p.internal_test)}"></td>
+                            <td class="border p-3 ${getColor(p.finishing)}"></td>
+                            <td class="border p-3 ${getColor(p.fat)}"></td>
+                        </tr>`;
+                });
+            } catch (err) { console.error(err); }
         }
-        setInterval(loadData, 5000); // REFRESH OTOMATIS
         loadData();
+        setInterval(loadData, 5000); // Auto-refresh data tiap 5 detik
     </script>
 </body>
 </html>
