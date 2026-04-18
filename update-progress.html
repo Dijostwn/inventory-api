@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Update Progress</title>
+    <title>Update Progress Trafo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center h-screen p-4">
@@ -10,12 +10,12 @@
         <h2 class="text-xl font-bold mb-6 text-center">Update Progress Trafo</h2>
         
         <div class="mb-4">
-            <label class="text-sm font-semibold">Nomor Order / Project</label>
-            <input id="no_order" type="text" placeholder="Contoh: TRAFO-123" class="w-full border p-2 rounded uppercase">
+            <label class="text-sm font-semibold">Nomor Order</label>
+            <input id="no_order" type="text" placeholder="Contoh: QW-001" class="w-full border p-2 rounded uppercase">
         </div>
 
         <div class="mb-4">
-            <label class="text-sm font-semibold">Pilih Tahapan Produksi</label>
+            <label class="text-sm font-semibold">Tahapan Produksi</label>
             <select id="tahap" class="w-full border p-2 rounded">
                 <option value="tank_making">Tank Making</option>
                 <option value="core_making">Core Making</option>
@@ -39,7 +39,7 @@
         </div>
 
         <button onclick="updateProgress()" id="btnSave" class="w-full bg-green-700 text-white p-3 rounded font-bold hover:bg-green-800 shadow">Simpan Perubahan</button>
-        <button onclick="window.location.href='login.html'" class="w-full mt-4 text-gray-500 text-sm underline">Batal & Kembali</button>
+        <button onclick="window.location.href='login.html'" class="w-full mt-4 text-gray-500 text-sm underline text-center block">Batal & Kembali</button>
     </div>
 
     <script>
@@ -62,7 +62,6 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                
                 const result = await res.json();
                 if(result.success) {
                     alert("✅ Berhasil Diperbarui!");
@@ -71,7 +70,7 @@
                     alert("❌ Gagal simpan ke database");
                 }
             } catch (err) {
-                alert("❌ Server Error / Timeout!");
+                alert("❌ Error Server!");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Simpan Perubahan";
