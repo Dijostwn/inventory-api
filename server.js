@@ -1,52 +1,53 @@
 const express = require('express');
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 const path = require('path');
-const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000; 
-const ROOT_DIR = path.join(__dirname);
+const PORT = process.env.PORT || 3000;
 
-// Koneksi ke MongoDB dengan penanganan error yang lebih baik agar tidak crash
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000, 
-    socketTimeoutMS: 45000,
-})
+// Koneksi ke MongoDB
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB Connected'))
-.catch(err => {
-    console.error('🛑 MongoDB Error:', err.message);
-    // Jangan biarkan proses crash, biarkan server tetap nyala untuk debug
+.catch(err => console.error('🛑 MongoDB Error:', err));
+
+// --- SCHEMA PROJECT TRAFO ---
+const projectSchema = new mongoose.Schema({
+    no_order: { type: String, required: true, unique: true },
+    customer: String,
+    tank_making: { type: String, default: "Pending" },
+    core_making: { type: String, default: "Pending" },
+    coil_making: { type: String, default: "Pending" },
+    core_coil_assy: { type: String, default: "Pending" },
+    connection: { type: String, default: "Pending" },
+    final_assy: { type: String, default: "Pending" },
+    internal_test: { type: String, default: "Pending" },
+    finishing: { type: String, default: "Pending" },
+    fat: { type: String, default: "Pending" }
+});
+const Project = mongoose.model('Project', projectSchema, 'projects');
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+// API: Ambil semua project
+app.get('/api/projects', async (req, res) => {
+    const data = await Project.find().sort({ no_order: 1 });
+    res.json(data);
 });
 
-// --- SCHEMAS ---
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true }
-});
-// Pastikan mencari di koleksi 'IDPASS' sesuai database kamu
-const User = mongoose.model('User', userSchema, 'IDPASS'); 
-
-// --- MIDDLEWARE ---
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true })); 
-app.use(express.static(ROOT_DIR)); 
-
-// --- ROUTES ---
-app.get('/', (req, res) => res.sendFile(path.join(ROOT_DIR, 'index.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'login.html')));
-
-app.post('/auth-login', async (req, res) => {
-    const { username, password } = req.body;
+// API: Update progress per tahap
+app.post('/api/update-progress', async (req, res) => {
+    const { no_order, tahap, status } = req.body;
     try {
-        const user = await User.findOne({ username, password });
-        if (user) {
-            res.json({ success: true });
-        } else {
-            res.json({ success: false, message: "Username atau Password Salah!" });
-        }
+        await Project.findOneAndUpdate(
+            { no_order }, 
+            { [tahap]: status }, 
+            { upsert: true } // Jika no_order belum ada, akan dibuat baru
+        );
+        res.json({ success: true });
     } catch (err) {
-        res.status(500).json({ success: false, message: "DB Error: " + err.message });
+        res.status(500).json({ success: false });
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
