@@ -18,16 +18,32 @@
     </div>
 
     <script>
-        function login() {
-            var user = document.getElementById('u').value;
-            var pass = document.getElementById('p').value;
-            if (user !== "" && pass !== "") {
-                // Mengarah langsung ke file login.html
-                window.location.href = "login.html";
-            } else {
-                alert("Isi dulu bos!");
-            }
+        
+        async function login() {
+        const u = document.getElementById('u').value;
+        const p = document.getElementById('p').value;
+
+        if (u === "" || p === "") {
+            alert("Isi dulu bos!");
+            return;
         }
-    </script>
+
+        // Mengirim data ke server (server.js)
+        const response = await fetch('/auth-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = "login.html";
+        } else {
+            alert(result.message);
+        }
+    }
+</script>
+    
 </body>
 </html>
