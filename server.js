@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
 
-// Pastikan MONGODB_URI di Vercel sudah pakai /weltraf
+// Koneksi ke MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB'))
+    .then(() => console.log('✅ Connected'))
     .catch(err => console.error('🛑 DB Error:', err));
 
 const projectSchema = new mongoose.Schema({
@@ -23,10 +23,23 @@ const projectSchema = new mongoose.Schema({
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+// Baris ini penting supaya file static (CSS/JS) terbaca
+app.use(express.static(path.join(__dirname))); 
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// --- FIX ROUTING ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/update-progress.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'update-progress.html'));
+});
+
+// --- API ---
 app.post('/auth-login', (req, res) => {
     if (req.body.username === "jodi" && req.body.password === "123") return res.json({ success: true });
     res.status(401).json({ success: false });
@@ -42,7 +55,6 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, tahap, status } = req.body;
-        // Logic $set: Hanya update kolom yang dipilih (tahap), yang lain tetap.
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
             { $set: { [tahap]: status } },
