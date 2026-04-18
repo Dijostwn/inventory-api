@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose'); 
 const path = require('path');
 const axios = require('axios');
@@ -8,69 +7,46 @@ const app = express();
 const PORT = process.env.PORT || 3000; 
 const ROOT_DIR = path.join(__dirname);
 
-// 1. Koneksi ke MongoDB dengan pengaturan stabilitas untuk Vercel
+// Koneksi ke MongoDB dengan penanganan error yang lebih baik agar tidak crash
 mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000, // Tunggu 5 detik sebelum timeout
-    socketTimeoutMS: 45000,         // Tutup soket setelah 45 detik
+    serverSelectionTimeoutMS: 5000, 
+    socketTimeoutMS: 45000,
 })
 .then(() => console.log('✅ MongoDB Connected'))
-.catch(err => console.error('🛑 MongoDB Error:', err.message));
+.catch(err => {
+    console.error('🛑 MongoDB Error:', err.message);
+    // Jangan biarkan proses crash, biarkan server tetap nyala untuk debug
+});
 
 // --- SCHEMAS ---
-
-// Skema untuk User (Login) - Diambil dari koleksi IDPASS
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true }
 });
-// Penting: Menggunakan koleksi 'IDPASS' di database 'users' sesuai gambar Atlas Anda
+// Pastikan mencari di koleksi 'IDPASS' sesuai database kamu
 const User = mongoose.model('User', userSchema, 'IDPASS'); 
 
-// Skema untuk Tiket
-const tiketSchema = new mongoose.Schema({
-    id: { type: Number, required: true, unique: true },
-    tanggal_waktu: { type: Date, default: Date.now },
-    status: { type: String, default: 'Open' },
-    nama_pelapor: { type: String, required: true },
-    departemen: { type: String, required: true },
-    kategori_masalah: { type: String, required: true },
-    deskripsi: { type: String, required: true }
-});
-const Tiket = mongoose.model('Tiket', tiketSchema, 'tickets');
-
 // --- MIDDLEWARE ---
-app.use(express.json()); // Wajib agar server bisa membaca data JSON dari fetch
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 app.use(express.static(ROOT_DIR)); 
 
 // --- ROUTES ---
-
-// Rute untuk menampilkan halaman HTML
 app.get('/', (req, res) => res.sendFile(path.join(ROOT_DIR, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'login.html')));
-app.get('/tiket.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'tiket.html')));
-app.get('/success.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'success.html')));
 
-// Proses Login: Mencocokkan data di koleksi IDPASS
 app.post('/auth-login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await User.findOne({ username: username, password: password });
+        const user = await User.findOne({ username, password });
         if (user) {
             res.json({ success: true });
         } else {
             res.json({ success: false, message: "Username atau Password Salah!" });
         }
     } catch (err) {
-        res.status(500).json({ success: false, message: "Error Server: " + err.message });
+        res.status(500).json({ success: false, message: "DB Error: " + err.message });
     }
 });
 
-// Proses Kirim Tiket
-app.post('/kirim-tiket', async (req, res) => {
-    try {
-        const newTiket = new Tiket({ id: Date.now(), ...req.body });
-        await newTiket.save();
-        
-        // Notifikasi Telegram
-        const message = `🎫 *Tiket IT Baru*\nPelapor: ${req.body.nama_pelapor
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
