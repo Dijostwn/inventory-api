@@ -1,22 +1,93 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELTRAF - Dashboard</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #c00000; height: 100vh; display: flex; align-items: center; justify-content: center; color: white; }
-        .success-box { background: white; color: #c00000; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { margin-bottom: 10px; }
-        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #c00000; color: white; text-decoration: none; border-radius: 10px; }
-    </style>
+    <title>IT Support Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="success-box">
-        <h1>LOGIN BERHASIL!</h1>
-        <p>Selamat datang di sistem WELTRAF.</p>
-        <a href="index.html" class="btn-back">Kembali</a>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white flex justify-between shadow-lg">
+        <h1 class="font-bold text-xl">IT Support System</h1>
+        <button onclick="logout()" class="bg-red-500 px-4 py-1 rounded hover:bg-red-700">Logout</button>
+    </nav>
+
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                <h3 class="text-gray-500">Total Tiket</h3>
+                <p id="total-tiket" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                <h3 class="text-gray-500">Pending</h3>
+                <p id="pending-tiket" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                <h3 class="text-gray-500">Selesai</h3>
+                <p id="selesai-tiket" class="text-2xl font-bold">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h2 class="text-lg font-semibold">Daftar Tiket Masuk</h2>
+                <button onclick="window.location.href='tiket.html'" class="bg-blue-600 text-white px-4 py-2 rounded">Buat Tiket Baru</button>
+            </div>
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-sm">
+                    <tr>
+                        <th class="p-4">ID</th>
+                        <th class="p-4">Pelapor</th>
+                        <th class="p-4">Masalah</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="ticket-list" class="divide-y">
+                    </tbody>
+            </table>
+        </div>
     </div>
+
+    <script>
+        // Cek login sederhana (bisa dikembangkan pakai JWT/Session)
+        async function fetchTickets() {
+            try {
+                const response = await fetch('/api/tickets');
+                const tickets = await response.json();
+                
+                const list = document.getElementById('ticket-list');
+                list.innerHTML = '';
+                
+                tickets.forEach(t => {
+                    list.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">#${t.id.toString().slice(-4)}</td>
+                            <td class="p-4 font-medium">${t.nama_pelapor}</td>
+                            <td class="p-4 text-sm text-gray-600">${t.kategori_masalah}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 rounded text-xs ${t.status === 'Open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                                    ${t.status}
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <button class="text-blue-600 hover:underline">Detail</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('total-tiket').innerText = tickets.length;
+            } catch (err) {
+                console.error("Gagal ambil data tiket");
+            }
+        }
+
+        function logout() {
+            window.location.href = "index.html";
+        }
+
+        fetchTickets();
+    </script>
 </body>
 </html>
