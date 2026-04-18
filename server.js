@@ -5,12 +5,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// KONEKSI DB
+// 1. KONEKSI DATABASE
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB Connected'))
 .catch(err => console.error('🛑 MongoDB Error:', err));
 
-// SCHEMA
+// 2. SCHEMA PROJECT
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
     tank_making: { type: String, default: "Pending" },
@@ -25,15 +25,28 @@ const projectSchema = new mongoose.Schema({
 });
 const Project = mongoose.model('Project', projectSchema, 'projects');
 
+// 3. MIDDLEWARE
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// ROUTES HALAMAN
+// 4. ROUTES NAVIGASI (Fix Cannot GET)
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
-// API AMBIL DATA
+// 5. API AUTH LOGIN
+app.post('/auth-login', (req, res) => {
+    const { username, password } = req.body;
+    // Login sederhana sesuai permintaan sebelumnya
+    if (username === "jodi" && password === "123") {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: "Username atau Password salah!" });
+    }
+});
+
+// 6. API DATA PROJECT
 app.get('/api/projects', async (req, res) => {
     try {
         const data = await Project.find().sort({ no_order: 1 });
@@ -43,7 +56,6 @@ app.get('/api/projects', async (req, res) => {
     }
 });
 
-// API UPDATE DATA (FIXED)
 app.post('/api/update-progress', async (req, res) => {
     const { no_order, tahap, status } = req.body;
     try {
@@ -52,13 +64,11 @@ app.post('/api/update-progress', async (req, res) => {
             { $set: { [tahap]: status } }, 
             { upsert: true, new: true }
         );
-        // Respon wajib dikirim agar frontend tahu proses selesai
-        res.status(200).json({ success: true, message: "Update Berhasil" });
+        res.status(200).json({ success: true });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Database Error" });
+        res.status(500).json({ success: false });
     }
 });
 
 module.exports = app;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
