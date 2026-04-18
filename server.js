@@ -48,14 +48,17 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/update-progress', async (req, res) => {
     const { no_order, tahap, status } = req.body;
     try {
-        await Project.findOneAndUpdate(
-            { no_order }, 
+        // Perhatikan bagian { upsert: true } -> ini penting supaya kalau 
+        // no_order belum ada, dia akan bikin baru otomatis.
+        const result = await Project.findOneAndUpdate(
+            { no_order: no_order }, 
             { [tahap]: status }, 
-            { upsert: true }
+            { upsert: true, new: true }
         );
-        res.json({ success: true });
+        res.json({ success: true, data: result });
     } catch (err) {
-        res.status(500).json({ success: false });
+        console.error(err);
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
