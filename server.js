@@ -5,15 +5,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Koneksi ke MongoDB
+// 1. KONEKSI DATABASE
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB Connected'))
 .catch(err => console.error('🛑 MongoDB Error:', err));
 
-// --- SCHEMA PROJECT TRAFO ---
+// 2. SCHEMA PROJECT TRAFO
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
-    customer: String,
     tank_making: { type: String, default: "Pending" },
     core_making: { type: String, default: "Pending" },
     coil_making: { type: String, default: "Pending" },
@@ -26,23 +25,33 @@ const projectSchema = new mongoose.Schema({
 });
 const Project = mongoose.model('Project', projectSchema, 'projects');
 
+// 3. MIDDLEWARE
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname))); // Melayani file html, css, js di folder yang sama
 
-// API: Ambil semua project
+// 4. ROUTES UNTUK HALAMAN (Fix Cannot GET)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
+
+// 5. API ENDPOINTS
 app.get('/api/projects', async (req, res) => {
-    const data = await Project.find().sort({ no_order: 1 });
-    res.json(data);
+    try {
+        const data = await Project.find().sort({ no_order: 1 });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json([]);
+    }
 });
 
-// API: Update progress per tahap
 app.post('/api/update-progress', async (req, res) => {
     const { no_order, tahap, status } = req.body;
     try {
         await Project.findOneAndUpdate(
             { no_order }, 
             { [tahap]: status }, 
-            { upsert: true } // Jika no_order belum ada, akan dibuat baru
+            { upsert: true }
         );
         res.json({ success: true });
     } catch (err) {
@@ -50,4 +59,15 @@ app.post('/api/update-progress', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+// LOGIN AUTH (Simpel menggunakan data statis atau database IDPASS)
+app.post('/auth-login', (req, res) => {
+    const { username, password } = req.body;
+    if(username === "jodi" && password === "123") {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: "Login Gagal" });
+    }
+});
+
+module.exports = app; // Penting untuk Vercel
+app.listen(PORT, () => console.log(`🚀 Server ready on port ${PORT}`));
