@@ -19,20 +19,20 @@
 
     <script>
         
-        async function login() {
-        const u = document.getElementById('u').value;
-        const p = document.getElementById('p').value;
+   async function login() {
+    const u = document.getElementById('u').value;
+    const p = document.getElementById('p').value;
 
-        if (u === "" || p === "") {
-            alert("Isi dulu bos!");
-            return;
-        }
+    if (u === "" || p === "") {
+        alert("Isi dulu bos!");
+        return;
+    }
 
-        // Mengirim data ke server (server.js)
+    try {
         const response = await fetch('/auth-login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
         });
 
         const result = await response.json();
@@ -42,7 +42,10 @@
         } else {
             alert(result.message);
         }
+    } catch (error) {
+        alert("Gagal menghubungi server.");
     }
+}
 </script>
     
 </body>
