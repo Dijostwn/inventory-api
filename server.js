@@ -10,7 +10,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB Connected'))
 .catch(err => console.error('🛑 MongoDB Error:', err));
 
-// 2. SCHEMA PROJECT (Sesuaikan dengan gambar produksi trafo)
+// 2. SCHEMA PROJECT (Sesuai kolom di gambar fabrikasi)
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
     tank_making: { type: String, default: "Pending" },
@@ -21,7 +21,8 @@ const projectSchema = new mongoose.Schema({
     final_assy: { type: String, default: "Pending" },
     internal_test: { type: String, default: "Pending" },
     finishing: { type: String, default: "Pending" },
-    fat: { type: String, default: "Pending" }
+    fat: { type: String, default: "Pending" },
+    packing_delivery: { type: String, default: "Pending" }
 });
 const Project = mongoose.model('Project', projectSchema, 'projects');
 
@@ -39,7 +40,7 @@ app.post('/auth-login', (req, res) => {
     if (username === "jodi" && password === "123") {
         res.json({ success: true });
     } else {
-        res.json({ success: false, message: "Username atau Password salah!" });
+        res.status(401).json({ success: false, message: "Login Gagal!" });
     }
 });
 
@@ -56,16 +57,14 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/update-progress', async (req, res) => {
     const { no_order, tahap, status } = req.body;
     try {
-        // Gunakan $set untuk memastikan update masuk ke kolom yang dipilih
         await Project.findOneAndUpdate(
             { no_order: no_order.trim() }, 
             { $set: { [tahap]: status } }, 
             { upsert: true, new: true }
         );
-        res.json({ success: true });
+        res.status(200).json({ success: true });
     } catch (err) {
-        console.error("Error DB:", err);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
