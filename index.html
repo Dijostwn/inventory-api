@@ -2,67 +2,78 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Monitoring Produksi Trafo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IT WELTRAF</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-4">
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow-lg">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Monitoring Fabrikasi Trafo</h1>
-            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-6 py-2 rounded">Update Progress</button>
+<body class="bg-gray-900 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">IT-WELTRAF</h1>
+            <p class="text-gray-500 text-sm">Monitoring Produksi Trafo</p>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-gray-300 text-center text-[11px]">
-                <thead class="bg-gray-200 uppercase">
-                    <tr>
-                        <th rowspan="2" class="border p-2">No Order</th>
-                        <th colspan="6" class="border p-2">Proses Fabrikasi</th>
-                        <th rowspan="2" class="border p-2">Internal Test</th>
-                        <th rowspan="2" class="border p-2">Finishing</th>
-                        <th rowspan="2" class="border p-2">FAT</th>
-                    </tr>
-                    <tr class="bg-gray-100">
-                        <th class="border p-1">Tank</th>
-                        <th class="border p-1">Core</th>
-                        <th class="border p-1">Coil</th>
-                        <th class="border p-1">C&C Assy</th>
-                        <th class="border p-1">Conn</th>
-                        <th class="border p-1">Final</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-            </table>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Username</label>
+                <input type="text" id="u" class="mt-1 block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Masukkan username">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Password</label>
+                <input type="password" id="p" class="mt-1 block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="••••••••">
+            </div>
+            <button onclick="login()" id="loginBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transform active:scale-95 transition duration-200">
+                Masuk Ke Dashboard
+            </button>
+        </div>
+
+        <div class="mt-8 text-center text-[10px] text-gray-400 uppercase tracking-widest">
+            &copy; 2026 PT Symphos Electric
         </div>
     </div>
+
     <script>
-        async function loadData() {
-            const res = await fetch('/api/projects');
-            const data = await res.json();
-            const body = document.getElementById('table-body');
-            body.innerHTML = '';
-            const getColor = (s) => {
-                if(s === 'Selesai') return 'bg-green-500';
-                if(s === 'In Progress') return 'bg-yellow-400';
-                return 'bg-red-500'; 
-            };
-            data.forEach(p => {
-                body.innerHTML += `
-                    <tr>
-                        <td class="border p-3 font-bold bg-gray-50 uppercase">${p.no_order}</td>
-                        <td class="border p-3 ${getColor(p.tank_making)}"></td>
-                        <td class="border p-3 ${getColor(p.core_making)}"></td>
-                        <td class="border p-3 ${getColor(p.coil_making)}"></td>
-                        <td class="border p-3 ${getColor(p.core_coil_assy)}"></td>
-                        <td class="border p-3 ${getColor(p.connection)}"></td>
-                        <td class="border p-3 ${getColor(p.final_assy)}"></td>
-                        <td class="border p-3 ${getColor(p.internal_test)}"></td>
-                        <td class="border p-3 ${getColor(p.finishing)}"></td>
-                        <td class="border p-3 ${getColor(p.fat)}"></td>
-                    </tr>`;
-            });
+        async function login() {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            const btn = document.getElementById('loginBtn');
+
+            if (!u || !p) {
+                alert("Username dan Password wajib diisi!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Mengecek...";
+
+            try {
+                const response = await fetch('/auth-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Berhasil login, arahkan ke dashboard trafo (login.html)
+                    window.location.href = "login.html";
+                } else {
+                    alert(result.message || "Login Gagal!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal terhubung ke server! Cek koneksi atau MongoDB IP Access List.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Masuk Ke Dashboard";
+            }
         }
-        loadData();
-        setInterval(loadData, 10000);
+
+        // Jalankan login saat tekan Enter
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') login();
+        });
     </script>
 </body>
 </html>
