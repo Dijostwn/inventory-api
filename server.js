@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000; 
 const ROOT_DIR = path.join(__dirname);
 
-// Koneksi ke MongoDB
+// 1. Koneksi ke MongoDB menggunakan Environment Variable dari Vercel
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ MongoDB Connected'))
     .catch(err => console.error('🛑 MongoDB Error:', err.message));
@@ -29,25 +29,26 @@ const Tiket = mongoose.model('Tiket', tiketSchema, 'tickets');
 
 // Skema untuk User (Login)
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
     password: { type: String, required: true }
 });
-const User = mongoose.model('User', userSchema, 'users');
+// PENTING: Menggunakan koleksi 'IDPASS' sesuai gambar MongoDB Anda
+const User = mongoose.model('User', userSchema, 'IDPASS'); 
 
 // --- MIDDLEWARE ---
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json()); // Untuk memproses data JSON dari fetch
+app.use(express.json()); // Untuk memproses data JSON dari fetch di index.html
 app.use(express.static(ROOT_DIR)); 
 
 // --- ROUTES ---
 
-// Menampilkan Halaman
+// Rute untuk menampilkan halaman HTML
 app.get('/', (req, res) => res.sendFile(path.join(ROOT_DIR, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'login.html')));
 app.get('/tiket.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'tiket.html')));
 app.get('/success.html', (req, res) => res.sendFile(path.join(ROOT_DIR, 'success.html')));
 
-// Proses Login dengan MongoDB
+// Proses Login: Mengecek ke koleksi IDPASS
 app.post('/auth-login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -58,7 +59,7 @@ app.post('/auth-login', async (req, res) => {
             res.json({ success: false, message: "Username atau Password Salah!" });
         }
     } catch (err) {
-        res.status(500).json({ success: false, message: "Error Server" });
+        res.status(500).json({ success: false, message: "Error Server: " + err.message });
     }
 });
 
@@ -68,13 +69,13 @@ app.post('/kirim-tiket', async (req, res) => {
         const newTiket = new Tiket({ id: Date.now(), ...req.body });
         await newTiket.save();
         
-        // Notifikasi Telegram
+        // Notifikasi Telegram (Pastikan Environment Variables sudah diisi di Vercel)
         const message = `🎫 *Tiket IT Baru*\nPelapor: ${req.body.nama_pelapor}\nDept: ${req.body.departemen}`;
         await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
             chat_id: process.env.TELEGRAM_CHAT_ID,
             text: message,
             parse_mode: 'Markdown'
-        }).catch(e => console.log("Telegram Error"));
+        }).catch(e => console.log("Telegram Notification Error"));
 
         res.sendFile(path.join(ROOT_DIR, 'success.html'));
     } catch (err) {
