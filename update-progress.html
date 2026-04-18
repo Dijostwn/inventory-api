@@ -8,8 +8,8 @@
 <body class="bg-gray-50 flex items-center justify-center h-screen p-4">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-sm border text-center">
         <h2 class="text-xl font-bold mb-6">Update Progress Trafo</h2>
-        <input id="no_order" type="text" placeholder="No Order (Contoh: QW-01)" class="w-full border p-2 mb-4 rounded uppercase">
-        <select id="tahap" class="w-full border p-2 mb-4 rounded">
+        <input id="no_order" type="text" placeholder="Masukkan No Order" class="w-full border p-3 mb-4 rounded uppercase outline-none focus:ring-2 focus:ring-green-500">
+        <select id="tahap" class="w-full border p-3 mb-4 rounded">
             <option value="tank_making">Tank Making</option>
             <option value="core_making">Core Making</option>
             <option value="coil_making">Coil Making</option>
@@ -20,34 +20,47 @@
             <option value="finishing">Finishing</option>
             <option value="fat">FAT</option>
         </select>
-        <select id="status" class="w-full border p-2 mb-6 rounded">
-            <option value="Pending">Pending (Merah)</option>
-            <option value="In Progress">In Progress (Kuning)</option>
-            <option value="Selesai">Selesai (Hijau)</option>
+        <select id="status" class="w-full border p-3 mb-6 rounded">
+            <option value="Pending (Merah)">Pending (Merah)</option>
+            <option value="In Progress (Kuning)">In Progress (Kuning)</option>
+            <option value="Selesai (Hijau)">Selesai (Hijau)</option>
         </select>
-        <button onclick="update()" id="btn" class="w-full bg-green-700 text-white p-3 rounded font-bold">Simpan</button>
-        <a href="login.html" class="block mt-4 text-sm underline text-gray-500">Kembali</a>
+        <button onclick="sendUpdate()" id="btn" class="w-full bg-green-700 text-white p-3 rounded-lg font-bold">Simpan Perubahan</button>
+        <a href="login.html" class="block mt-4 text-sm text-gray-400 underline">Kembali ke Dashboard</a>
     </div>
+
     <script>
-        async function update() {
+        async function sendUpdate() {
             const btn = document.getElementById('btn');
             const data = {
                 no_order: document.getElementById('no_order').value,
                 tahap: document.getElementById('tahap').value,
                 status: document.getElementById('status').value
             };
-            if(!data.no_order) return alert("Isi No Order!");
-            btn.disabled = true; btn.innerText = "Saving...";
+
+            if(!data.no_order) return alert("Nomor Order tidak boleh kosong!");
+
+            btn.disabled = true;
+            btn.innerText = "Mengirim...";
+
             try {
                 const res = await fetch('/api/update-progress', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                if(res.ok) { alert("✅ Berhasil!"); window.location.href='login.html'; }
-                else { alert("❌ Gagal simpan database"); }
-            } catch (err) { alert("❌ Server Error"); }
-            finally { btn.disabled = false; btn.innerText = "Simpan"; }
+                if(res.ok) {
+                    alert("✅ Berhasil Diupdate!");
+                    window.location.href = 'login.html';
+                } else {
+                    alert("❌ Gagal simpan ke database!");
+                }
+            } catch (e) {
+                alert("❌ Server Error!");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Simpan Perubahan";
+            }
         }
     </script>
 </body>
