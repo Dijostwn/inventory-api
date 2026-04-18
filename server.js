@@ -10,7 +10,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB Connected'))
 .catch(err => console.error('🛑 MongoDB Error:', err));
 
-// 2. SCHEMA PROJECT
+// 2. SCHEMA PROJECT (Sesuaikan dengan gambar produksi trafo)
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
     tank_making: { type: String, default: "Pending" },
@@ -25,20 +25,17 @@ const projectSchema = new mongoose.Schema({
 });
 const Project = mongoose.model('Project', projectSchema, 'projects');
 
-// 3. MIDDLEWARE
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// 4. ROUTES NAVIGASI (Fix Cannot GET)
+// 3. ROUTES NAVIGASI
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
-// 5. API AUTH LOGIN
+// 4. API LOGIN
 app.post('/auth-login', (req, res) => {
     const { username, password } = req.body;
-    // Login sederhana sesuai permintaan sebelumnya
     if (username === "jodi" && password === "123") {
         res.json({ success: true });
     } else {
@@ -46,7 +43,7 @@ app.post('/auth-login', (req, res) => {
     }
 });
 
-// 6. API DATA PROJECT
+// 5. API DATA
 app.get('/api/projects', async (req, res) => {
     try {
         const data = await Project.find().sort({ no_order: 1 });
@@ -59,13 +56,15 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/update-progress', async (req, res) => {
     const { no_order, tahap, status } = req.body;
     try {
+        // Gunakan $set untuk memastikan update masuk ke kolom yang dipilih
         await Project.findOneAndUpdate(
             { no_order: no_order.trim() }, 
             { $set: { [tahap]: status } }, 
             { upsert: true, new: true }
         );
-        res.status(200).json({ success: true });
+        res.json({ success: true });
     } catch (err) {
+        console.error("Error DB:", err);
         res.status(500).json({ success: false });
     }
 });
