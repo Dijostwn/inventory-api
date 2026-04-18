@@ -3,23 +3,9 @@ const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
 
-// Gunakan link MongoDB kamu
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('🛑 DB Error:', err));
-
-app.use(express.json());
-// Baris ini sangat penting agar Vercel bisa membaca folder saat ini
-app.use(express.static(path.join(__dirname))); 
-
-// Route manual agar tidak "Cannot GET"
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// ... kode route API kamu lainnya ...
-
-module.exports = app;
+    .then(() => console.log('✅ Terhubung ke MongoDB'))
+    .catch(err => console.error('🛑 Gagal Koneksi:', err));
 
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
@@ -36,16 +22,13 @@ const projectSchema = new mongoose.Schema({
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname))); // Fix path static
+app.use(express.static(path.join(__dirname)));
 
-// 2. FIX "CANNOT GET" - Navigasi Manual
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
-// 3. API
 app.post('/auth-login', (req, res) => {
-    if (req.body.username === "jodi" && req.body.password === "123") return res.json({ success: true });
+    const { username, password } = req.body;
+    if (username === "jodi" && password === "123") return res.json({ success: true });
     res.status(401).json({ success: false });
 });
 
@@ -59,13 +42,17 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, tahap, status } = req.body;
+        console.log("Data masuk:", no_order, tahap, status);
         await Project.findOneAndUpdate(
-            { no_order: no_order.trim() },
+            { no_order: no_order.toUpperCase().trim() },
             { $set: { [tahap]: status } },
-            { upsert: true }
+            { upsert: true, new: true }
         );
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) {
+        console.error("Error Simpan:", err);
+        res.status(500).json({ success: false });
+    }
 });
 
 module.exports = app;
