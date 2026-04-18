@@ -21,7 +21,6 @@ const projectSchema = new mongoose.Schema({
     finishing: { type: String, default: "" },
     fat: { type: String, default: "" }
 });
-
 app.use(express.json());
 // Baris ini penting supaya file static (CSS/JS) terbaca
 app.use(express.static(path.join(__dirname))); 
