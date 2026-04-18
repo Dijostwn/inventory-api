@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Progress Produksi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96 border">
+        <h2 class="text-xl font-bold mb-4 text-center">Update Progress Trafo</h2>
+        
+        <label class="block text-sm mb-1">Nomor Order / Project</label>
+        <input id="no_order" type="text" placeholder="Contoh: TRAFO-2026-001" class="w-full border p-2 mb-4 rounded">
+
+        <label class="block text-sm mb-1">Pilih Tahapan Produksi</label>
+        <select id="tahap" class="w-full border p-2 mb-4 rounded">
+            <option value="tank_making">Tank Making</option>
+            <option value="core_making">Core Making</option>
+            <option value="coil_making">Coil Making</option>
+            <option value="core_coil_assy">Core & Coil Assy</option>
+            <option value="connection">Connection</option>
+            <option value="final_assy">Final Assembly</option>
+            <option value="internal_test">Internal Test</option>
+            <option value="finishing">Finishing</option>
+            <option value="fat">FAT (Factory Acceptance Test)</option>
+        </select>
+
+        <label class="block text-sm mb-1">Status</label>
+        <select id="status" class="w-full border p-2 mb-6 rounded">
+            <option value="Pending">Pending (Merah)</option>
+            <option value="In Progress">In Progress (Kuning)</option>
+            <option value="Selesai">Selesai (Hijau)</option>
+        </select>
+
+        <button onclick="updateProgress()" class="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700">Simpan Perubahan</button>
+        <button onclick="window.location.href='login.html'" class="w-full mt-2 text-gray-500 text-sm italic underline">Kembali ke Dashboard</button>
+    </div>
+
+    <script>
+        async function updateProgress() {
+            const data = {
+                no_order: document.getElementById('no_order').value,
+                tahap: document.getElementById('tahap').value,
+                status: document.getElementById('status').value
+            };
+
+            if(!data.no_order) return alert("Nomor Order wajib diisi!");
+
+            const res = await fetch('/api/update-progress', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if(res.ok) {
+                alert("Progress Berhasil Diperbarui!");
+            } else {
+                alert("Gagal update!");
+            }
+        }
+    </script>
+</body>
+</html>
