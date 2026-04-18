@@ -23,24 +23,21 @@
     const u = document.getElementById('u').value;
     const p = document.getElementById('p').value;
 
-    if (u === "" || p === "") {
-        alert("Isi dulu bos!");
-        return;
-    }
+    try {
+        const response = await fetch('/auth-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
+        });
+        const result = await response.json();
 
-    // UPDATE: Mengirim data sebagai JSON
-    const response = await fetch('/auth-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // Pastikan ini JSON
-        body: JSON.stringify({ username: u, password: p }) // Pastikan ini stringify
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-        window.location.href = "login.html";
-    } else {
-        alert(result.message);
+        if (result.success) {
+            window.location.href = "login.html"; // Ke Dashboard Trafo
+        } else {
+            alert(result.message);
+        }
+    } catch (err) {
+        alert("Gagal koneksi ke server!");
     }
 }
 </script>
