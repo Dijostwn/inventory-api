@@ -1,93 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Support Dashboard</title>
+    <title>Dashboard Produksi Trafo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
-    <nav class="bg-blue-600 p-4 text-white flex justify-between shadow-lg">
-        <h1 class="font-bold text-xl">IT Support System</h1>
-        <button onclick="logout()" class="bg-red-500 px-4 py-1 rounded hover:bg-red-700">Logout</button>
-    </nav>
-
-    <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                <h3 class="text-gray-500">Total Tiket</h3>
-                <p id="total-tiket" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                <h3 class="text-gray-500">Pending</h3>
-                <p id="pending-tiket" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                <h3 class="text-gray-500">Selesai</h3>
-                <p id="selesai-tiket" class="text-2xl font-bold">0</p>
-            </div>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Monitoring Fabrikasi Trafo</h1>
+            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-4 py-2 rounded">Update Progress</button>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h2 class="text-lg font-semibold">Daftar Tiket Masuk</h2>
-                <button onclick="window.location.href='tiket.html'" class="bg-blue-600 text-white px-4 py-2 rounded">Buat Tiket Baru</button>
-            </div>
-            <table class="w-full text-left">
-                <thead class="bg-gray-50 text-gray-600 uppercase text-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 text-center text-xs">
+                <thead class="bg-gray-200">
                     <tr>
-                        <th class="p-4">ID</th>
-                        <th class="p-4">Pelapor</th>
-                        <th class="p-4">Masalah</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4">Aksi</th>
+                        <th rowspan="2" class="border p-2">No Order</th>
+                        <th colspan="6" class="border p-2">Proses Fabrikasi</th>
+                        <th rowspan="2" class="border p-2">Internal Test</th>
+                        <th rowspan="2" class="border p-2">Finishing</th>
+                        <th rowspan="2" class="border p-2">FAT</th>
+                    </tr>
+                    <tr class="bg-gray-100">
+                        <th class="border p-1">Tank Making</th>
+                        <th class="border p-1">Core Making</th>
+                        <th class="border p-1">Coil Making</th>
+                        <th class="border p-1">C&C Assy</th>
+                        <th class="border p-1">Connection</th>
+                        <th class="border p-1">Final Assy</th>
                     </tr>
                 </thead>
-                <tbody id="ticket-list" class="divide-y">
+                <tbody id="table-body">
                     </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Cek login sederhana (bisa dikembangkan pakai JWT/Session)
-        async function fetchTickets() {
-            try {
-                const response = await fetch('/api/tickets');
-                const tickets = await response.json();
-                
-                const list = document.getElementById('ticket-list');
-                list.innerHTML = '';
-                
-                tickets.forEach(t => {
-                    list.innerHTML += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">#${t.id.toString().slice(-4)}</td>
-                            <td class="p-4 font-medium">${t.nama_pelapor}</td>
-                            <td class="p-4 text-sm text-gray-600">${t.kategori_masalah}</td>
-                            <td class="p-4">
-                                <span class="px-2 py-1 rounded text-xs ${t.status === 'Open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
-                                    ${t.status}
-                                </span>
-                            </td>
-                            <td class="p-4">
-                                <button class="text-blue-600 hover:underline">Detail</button>
-                            </td>
-                        </tr>
-                    `;
-                });
+        async function loadData() {
+            const res = await fetch('/api/projects');
+            const data = await res.json();
+            const body = document.getElementById('table-body');
+            body.innerHTML = '';
 
-                document.getElementById('total-tiket').innerText = tickets.length;
-            } catch (err) {
-                console.error("Gagal ambil data tiket");
-            }
+            const getColor = (s) => {
+                if(s === 'Selesai') return 'bg-green-500';
+                if(s === 'In Progress') return 'bg-yellow-400';
+                return 'bg-red-500'; // Default Pending
+            };
+
+            data.forEach(p => {
+                body.innerHTML += `
+                    <tr>
+                        <td class="border p-3 font-bold bg-gray-50">${p.no_order}</td>
+                        <td class="border p-3 ${getColor(p.tank_making)}"></td>
+                        <td class="border p-3 ${getColor(p.core_making)}"></td>
+                        <td class="border p-3 ${getColor(p.coil_making)}"></td>
+                        <td class="border p-3 ${getColor(p.core_coil_assy)}"></td>
+                        <td class="border p-3 ${getColor(p.connection)}"></td>
+                        <td class="border p-3 ${getColor(p.final_assy)}"></td>
+                        <td class="border p-3 ${getColor(p.internal_test)}"></td>
+                        <td class="border p-3 ${getColor(p.finishing)}"></td>
+                        <td class="border p-3 ${getColor(p.fat)}"></td>
+                    </tr>
+                `;
+            });
         }
-
-        function logout() {
-            window.location.href = "index.html";
-        }
-
-        fetchTickets();
+        setInterval(loadData, 5000); // Auto refresh tiap 5 detik
+        loadData();
     </script>
 </body>
 </html>
