@@ -2,19 +2,19 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Produksi Trafo</title>
+    <title>Monitoring Produksi Trafo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-4">
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-xl">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded shadow-lg">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Monitoring Fabrikasi Trafo</h1>
-            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-4 py-2 rounded">Update Progress</button>
+            <h1 class="text-2xl font-bold">Monitoring Fabrikasi Trafo</h1>
+            <button onclick="window.location.href='update-progress.html'" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Update Progress</button>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-gray-300 text-center text-xs">
-                <thead class="bg-gray-200">
+            <table class="w-full border-collapse border border-gray-300 text-center text-[11px]">
+                <thead class="bg-gray-200 uppercase">
                     <tr>
                         <th rowspan="2" class="border p-2">No Order</th>
                         <th colspan="6" class="border p-2">Proses Fabrikasi</th>
@@ -23,16 +23,15 @@
                         <th rowspan="2" class="border p-2">FAT</th>
                     </tr>
                     <tr class="bg-gray-100">
-                        <th class="border p-1">Tank Making</th>
-                        <th class="border p-1">Core Making</th>
-                        <th class="border p-1">Coil Making</th>
+                        <th class="border p-1">Tank</th>
+                        <th class="border p-1">Core</th>
+                        <th class="border p-1">Coil</th>
                         <th class="border p-1">C&C Assy</th>
-                        <th class="border p-1">Connection</th>
-                        <th class="border p-1">Final Assy</th>
+                        <th class="border p-1">Conn</th>
+                        <th class="border p-1">Final</th>
                     </tr>
                 </thead>
-                <tbody id="table-body">
-                    </tbody>
+                <tbody id="table-body"></tbody>
             </table>
         </div>
     </div>
@@ -47,13 +46,13 @@
             const getColor = (s) => {
                 if(s === 'Selesai') return 'bg-green-500';
                 if(s === 'In Progress') return 'bg-yellow-400';
-                return 'bg-red-500'; // Default Pending
+                return 'bg-red-500'; 
             };
 
             data.forEach(p => {
                 body.innerHTML += `
                     <tr>
-                        <td class="border p-3 font-bold bg-gray-50">${p.no_order}</td>
+                        <td class="border p-3 font-bold bg-gray-50 uppercase">${p.no_order}</td>
                         <td class="border p-3 ${getColor(p.tank_making)}"></td>
                         <td class="border p-3 ${getColor(p.core_making)}"></td>
                         <td class="border p-3 ${getColor(p.coil_making)}"></td>
@@ -67,7 +66,7 @@
                 `;
             });
         }
-        setInterval(loadData, 5000); // Auto refresh tiap 5 detik
+        setInterval(loadData, 5000); // REFRESH OTOMATIS
         loadData();
     </script>
 </body>
