@@ -9,9 +9,13 @@ const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.join(__dirname);
 
 // 1. Koneksi ke MongoDB menggunakan Environment Variable dari Vercel
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.error('🛑 MongoDB Error:', err.message));
+// Ganti bagian koneksi mongoose di server.js Anda dengan ini
+mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000, // Tunggu 5 detik sebelum timeout
+    socketTimeoutMS: 45000,         // Tutup soket setelah 45 detik
+})
+.then(() => console.log('✅ MongoDB Connected'))
+.catch(err => console.error('🛑 MongoDB Error:', err.message));
 
 // --- SCHEMAS ---
 
