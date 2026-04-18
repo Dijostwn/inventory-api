@@ -10,17 +10,17 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true },
-    tank_making: { type: String, default: "Pending (Merah)" },
-    core_making: { type: String, default: "Pending (Merah)" },
-    coil_making: { type: String, default: "Pending (Merah)" },
-    core_coil_assy: { type: String, default: "Pending (Merah)" },
-    connection: { type: String, default: "Pending (Merah)" },
-    final_assy: { type: String, default: "Pending (Merah)" },
-    internal_test: { type: String, default: "Pending (Merah)" },
-    finishing: { type: String, default: "Pending (Merah)" },
-    fat: { type: String, default: "Pending (Merah)" }
+    // Default diubah jadi string kosong agar tidak langsung berwarna di dashboard
+    tank_making: { type: String, default: "" },
+    core_making: { type: String, default: "" },
+    coil_making: { type: String, default: "" },
+    core_coil_assy: { type: String, default: "" },
+    connection: { type: String, default: "" },
+    final_assy: { type: String, default: "" },
+    internal_test: { type: String, default: "" },
+    finishing: { type: String, default: "" },
+    fat: { type: String, default: "" }
 });
-const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 // Baris ini penting supaya file static (CSS/JS) terbaca
