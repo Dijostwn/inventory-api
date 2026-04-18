@@ -6,6 +6,8 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "server.js" },
     { "src": "/auth-login", "dest": "server.js" },
+    { "src": "/login.html", "dest": "server.js" },
+    { "src": "/update-progress.html", "dest": "server.js" },
     { "src": "/(.*)", "dest": "server.js" }
   ]
 }
