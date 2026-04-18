@@ -43,10 +43,11 @@
             const body = document.getElementById('table-body');
             body.innerHTML = '';
 
-            const getColor = (s) => {
-                if(s === 'Selesai') return 'bg-green-500';
-                if(s === 'In Progress') return 'bg-yellow-400';
-                return 'bg-red-500'; 
+           const getColor = (s) => {
+    if(s === 'Selesai') return 'bg-green-500';
+    if(s === 'In Progress') return 'bg-yellow-400';
+    return 'bg-red-500'; // Default Pending
+};
             };
 
             data.forEach(p => {
