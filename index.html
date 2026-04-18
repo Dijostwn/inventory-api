@@ -19,7 +19,7 @@
 
     <script>
         
-   async function login() {
+  async function login() {
     const u = document.getElementById('u').value;
     const p = document.getElementById('p').value;
 
@@ -28,22 +28,19 @@
         return;
     }
 
-    try {
-        const response = await fetch('/auth-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: u, password: p })
-        });
+    // UPDATE: Mengirim data sebagai JSON
+    const response = await fetch('/auth-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, // Pastikan ini JSON
+        body: JSON.stringify({ username: u, password: p }) // Pastikan ini stringify
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (result.success) {
-            window.location.href = "login.html";
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        alert("Gagal menghubungi server.");
+    if (result.success) {
+        window.location.href = "login.html";
+    } else {
+        alert(result.message);
     }
 }
 </script>
