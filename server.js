@@ -8,19 +8,20 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected'))
     .catch(err => console.error('🛑 DB Error:', err));
 
-const projectSchema = new mongoose.Schema({
-    no_order: { type: String, required: true, unique: true },
-    // Default diubah jadi string kosong agar tidak langsung berwarna di dashboard
-    tank_making: { type: String, default: "" },
-    core_making: { type: String, default: "" },
-    coil_making: { type: String, default: "" },
-    core_coil_assy: { type: String, default: "" },
-    connection: { type: String, default: "" },
-    final_assy: { type: String, default: "" },
-    internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" },
-    fat: { type: String, default: "" }
-});
+    const projectSchema = new mongoose.Schema({
+            no_order: { type: String, required: true, unique: true },
+            // Ganti semua default menjadi "" (kosong)
+            tank_making: { type: String, default: "" },
+            core_making: { type: String, default: "" },
+            coil_making: { type: String, default: "" },
+            core_coil_assy: { type: String, default: "" },
+            connection: { type: String, default: "" },
+            final_assy: { type: String, default: "" },
+            internal_test: { type: String, default: "" },
+            finishing: { type: String, default: "" },
+            fat: { type: String, default: "" }
+    });
+
 app.use(express.json());
 // Baris ini penting supaya file static (CSS/JS) terbaca
 app.use(express.static(path.join(__dirname))); 
