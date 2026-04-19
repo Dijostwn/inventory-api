@@ -38,14 +38,14 @@
             const body = document.getElementById('table-body');
             body.innerHTML = '';
             
-            const getColor = (s) => {
-    if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
-    if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
-    if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
+           const getColor = (s) => {
+            if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
+            if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
+            if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
     
-    // Jika kosong atau belum diisi, kembalikan class kosong (warna putih/polos)
-    return 'bg-white text-transparent'; 
-};
+    // Jika data kosong (""), maka tampilkan warna putih/polos
+            return 'bg-white text-transparent border-gray-100'; 
+        };
 
             data.forEach(p => {
                 body.innerHTML += `
