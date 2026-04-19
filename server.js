@@ -4,8 +4,8 @@ const path = require('path');
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.error('🛑 MongoDB Connection Error:', err));
+    .then(() => console.log('✅ Connected'))
+    .catch(err => console.error('🛑 DB Error:', err));
 
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
@@ -19,21 +19,29 @@ const projectSchema = new mongoose.Schema({
     finishing: { type: String, default: "" },
     fat: { type: String, default: "" }
 });
-
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ROUTING
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// ROUTING HALAMAN - Pastikan path file benar
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/update-progress.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'update-progress.html'));
+});
+
+// API
 app.post('/auth-login', (req, res) => {
     const { username, password } = req.body;
-    if (username === "jodi" && password === "123") {
-        return res.json({ success: true });
-    }
-    res.status(401).json({ success: false, message: "Login Gagal" });
+    if (username === "jodi" && password === "123") return res.json({ success: true });
+    res.status(401).json({ success: false });
 });
 
 app.get('/api/projects', async (req, res) => {
@@ -56,4 +64,3 @@ app.post('/api/update-progress', async (req, res) => {
 });
 
 module.exports = app;
-app.listen(3000);
