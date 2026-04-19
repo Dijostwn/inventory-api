@@ -2,78 +2,44 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - IT WELTRAF</title>
+    <title>Login - Weltraf</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">IT-WELTRAF</h1>
-            <p class="text-gray-500 text-sm">Monitoring Produksi Trafo</p>
-        </div>
-
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Username</label>
-                <input type="text" id="u" class="mt-1 block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Masukkan username">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Password</label>
-                <input type="password" id="p" class="mt-1 block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="••••••••">
-            </div>
-            <button onclick="login()" id="loginBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transform active:scale-95 transition duration-200">
-                Masuk Ke Dashboard
-            </button>
-        </div>
-
-        <div class="mt-8 text-center text-[10px] text-gray-400 uppercase tracking-widest">
-            &copy; 2026 PT Symphos Electric
-        </div>
+    <div class="bg-white p-8 rounded-lg shadow-xl w-96 text-center">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Monitoring Produksi</h2>
+        <input id="user" type="text" placeholder="Username" class="w-full p-3 border rounded mb-4 outline-none focus:ring-2 focus:ring-blue-500">
+        <input id="pass" type="password" placeholder="Password" class="w-full p-3 border rounded mb-6 outline-none focus:ring-2 focus:ring-blue-500">
+        <button onclick="doLogin()" id="btnLogin" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition">Login</button>
+        <p class="mt-4 text-xs text-gray-400">© 2026 PT SYMPHOS ELECTRIC</p>
     </div>
 
     <script>
-        async function login() {
-            const u = document.getElementById('u').value;
-            const p = document.getElementById('p').value;
-            const btn = document.getElementById('loginBtn');
-
-            if (!u || !p) {
-                alert("Username dan Password wajib diisi!");
-                return;
-            }
-
-            btn.disabled = true;
+        async function doLogin() {
+            const btn = document.getElementById('btnLogin');
             btn.innerText = "Mengecek...";
-
+            
             try {
-                const response = await fetch('/auth-login', {
+                const res = await fetch('/auth-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
+                    body: JSON.stringify({ 
+                        username: document.getElementById('user').value, 
+                        password: document.getElementById('pass').value 
+                    })
                 });
 
-                const result = await response.json();
-
-                if (result.success) {
-                    // Berhasil login, arahkan ke dashboard trafo (login.html)
-                    window.location.href = "login.html";
+                if (res.ok) {
+                    window.location.href = 'login.html';
                 } else {
-                    alert(result.message || "Login Gagal!");
+                    alert("Gagal terhubung ke server! Cek koneksi atau MongoDB.");
+                    btn.innerText = "Login";
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Gagal terhubung ke server! Cek koneksi atau MongoDB IP Access List.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Masuk Ke Dashboard";
+            } catch (e) {
+                alert("Error: " + e.message);
+                btn.innerText = "Login";
             }
         }
-
-        // Jalankan login saat tekan Enter
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') login();
-        });
     </script>
 </body>
 </html>
