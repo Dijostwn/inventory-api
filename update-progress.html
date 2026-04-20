@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Progress Produksi - Weltraf</title>
+    <title>Update Progress - Weltraf</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -13,35 +13,22 @@
         <div class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-1">NOMOR SO / ORDER</label>
-                <input id="no_order" type="text" placeholder="Contoh: 26-079" class="w-full p-3 border rounded-lg font-bold uppercase focus:ring-2 focus:ring-blue-500 outline-none">
+                <input id="no_order" type="text" placeholder="Contoh: 26-079" class="w-full p-3 border rounded-lg font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div id="identitas-section" class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">CUSTOMER</label>
-                    <input id="customer" type="text" placeholder="Nama Customer" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">PROJECT</label>
-                    <input id="project_name" type="text" placeholder="Nama Project" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">QUANTITY</label>
-                    <input id="quantity" type="text" placeholder="Qty" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">VARIAN (KVA)</label>
-                    <input id="varian" type="text" placeholder="KVA" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
+                <input id="customer" type="text" placeholder="Customer" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
+                <input id="project_name" type="text" placeholder="Project" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
+                <input id="quantity" type="text" placeholder="Qty" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
+                <input id="varian" type="text" placeholder="Varian (KVA)" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
             </div>
 
-            <hr class="my-4">
+            <hr class="my-2">
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-1">TAHAP PRODUKSI</label>
                 <select id="tahap" class="w-full p-3 border rounded-lg bg-white outline-none">
                     <option value="">-- Pilih Tahap --</option>
-                    <option value="design_approval">Design Approval</option>
                     <option value="tank_making">Tank Making</option>
                     <option value="core_making">Core Making</option>
                     <option value="coil_making">Coil Making</option>
@@ -54,97 +41,89 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">STATUS PROGRESS</label>
+                <label class="block text-xs font-bold text-gray-500 mb-1">STATUS</label>
                 <select id="status" class="w-full p-3 border rounded-lg bg-white outline-none">
-                    <option value="Pending (Merah)">🔴 Pending (Merah)</option>
-                    <option value="In Progress (Kuning)">🟡 In Progress (Kuning)</option>
-                    <option value="Selesai (Hijau)">🟢 Selesai (Hijau)</option>
+                    <option value="Pending (Merah)">🔴 Pending</option>
+                    <option value="In Progress (Kuning)">🟡 In Progress</option>
+                    <option value="Selesai (Hijau)">🟢 Selesai</option>
                 </select>
             </div>
 
-            <button onclick="simpanData()" id="btnSimpan" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-bold transition-all shadow-md">
+            <button onclick="simpanData()" id="btnSimpan" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
                 Simpan Perubahan
             </button>
             
-            <button onclick="window.location.href='login.html'" class="w-full text-gray-500 text-sm font-medium hover:underline">
+            <button onclick="window.location.href='/login.html'" class="w-full text-gray-400 text-sm hover:underline">
                 Kembali ke Dashboard
             </button>
         </div>
     </div>
 
     <script>
-        // Cek Login & Role
         const role = localStorage.getItem('userRole');
         
         document.addEventListener('DOMContentLoaded', () => {
             if (!role) {
-                alert("Sesi habis, silakan login kembali.");
-                window.location.href = 'index.html';
+                alert("Silakan login kembali.");
+                window.location.href = '/';
                 return;
             }
 
-            const isSuper = role === 'superadmin';
-            const selectTahap = document.getElementById('tahap');
-            
-            // Proteksi Input jika bukan Superadmin
-            if (!isSuper) {
-                document.querySelectorAll('.manual-input').forEach(input => {
-                    input.disabled = true;
-                    input.classList.add('bg-gray-200', 'cursor-not-allowed');
-                });
+            // Jika bukan superadmin, kunci input identitas
+            if (role !== 'superadmin') {
+                document.querySelectorAll('.manual-input').forEach(el => el.disabled = true);
                 
-                // Kunci tahap sesuai role admin
-                if (role !== "superadmin") {
-                    selectTahap.value = role;
-                    Array.from(selectTahap.options).forEach(opt => {
-                        if (opt.value !== role && opt.value !== "") opt.disabled = true;
-                    });
-                }
+                // Kunci pilihan tahap sesuai job admin
+                const selectTahap = document.getElementById('tahap');
+                selectTahap.value = role;
+                Array.from(selectTahap.options).forEach(opt => {
+                    if (opt.value !== role && opt.value !== "") opt.disabled = true;
+                });
             }
         });
 
         async function simpanData() {
-            const btn = document.getElementById('btnSimpan');
             const noOrder = document.getElementById('no_order').value.trim();
-            
-            if (!noOrder) {
-                alert("Nomor SO/Order wajib diisi!");
-                return;
-            }
+            if (!noOrder) return alert("Nomor Order wajib diisi!");
 
-            // Siapkan Data untuk dikirim
             const payload = {
                 no_order: noOrder,
                 tahap: document.getElementById('tahap').value,
                 status: document.getElementById('status').value
             };
 
-            // Tambahkan data identitas hanya jika diisi (biasanya oleh Superadmin)
+            // Kirim identitas hanya jika diisi (Superadmin)
             if (role === 'superadmin') {
-                const cust = document.getElementById('customer').value;
-                const proj = document.getElementById('project_name').value;
-                const qty = document.getElementById('quantity').value;
-                const varKva = document.getElementById('varian').value;
-
-                if (cust) payload.customer = cust;
-                if (proj) payload.project_name = proj;
-                if (qty) payload.quantity = qty;
-                if (varKva) payload.varian = varKva;
+                payload.customer = document.getElementById('customer').value;
+                payload.project_name = document.getElementById('project_name').value;
+                payload.quantity = document.getElementById('quantity').value;
+                payload.varian = document.getElementById('varian').value;
             }
 
-            btn.innerText = "Memproses...";
+            const btn = document.getElementById('btnSimpan');
+            btn.innerText = "Menyimpan...";
             btn.disabled = true;
 
             try {
-                const response = await fetch('/api/update-progress', {
+                const res = await fetch('/api/update-progress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (response.ok) {
-                    alert("Data berhasil diperbarui!");
-                    window.location.href = 'login.html';
+                if (res.ok) {
+                    alert("Data Berhasil Diperbarui!");
+                    window.location.href = '/login.html';
                 } else {
-                    const err = await response.json();
-                    alert("Gagal menyimpan: " + (err.message
+                    alert("Gagal Simpan ke Database!");
+                }
+            } catch (error) {
+                alert("Error Koneksi!");
+            } finally {
+                btn.innerText = "Simpan Perubahan";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
