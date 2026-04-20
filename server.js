@@ -28,7 +28,6 @@ const Project = mongoose.model('Project', projectSchema);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// DAFTAR ROLE (Username: Kolom yang boleh diupdate)
 const ADMIN_ROLES = {
     "jodi": "superadmin",
     "admin_design": "design_approval",
@@ -59,19 +58,22 @@ app.get('/api/projects', async (req, res) => {
     res.json(data);
 });
 
+// LOGIKA UPDATE BARU: Tidak akan menghapus data lama jika input kosong
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
-        let up = {};
-        if (tahap && status) up[tahap] = status;
-        if (customer !== undefined) up.customer = customer;
-        if (project_name !== undefined) up.project_name = project_name;
-        if (quantity !== undefined) up.quantity = quantity;
-        if (varian !== undefined) up.varian = varian;
+        let updateData = {};
+        
+        // Hanya masukkan ke object update jika ada isinya
+        if (customer) updateData.customer = customer;
+        if (project_name) updateData.project_name = project_name;
+        if (quantity) updateData.quantity = quantity;
+        if (varian) updateData.varian = varian;
+        if (tahap && status) updateData[tahap] = status;
 
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
-            { $set: up },
+            { $set: updateData },
             { upsert: true, new: true }
         );
         res.json({ success: true });
