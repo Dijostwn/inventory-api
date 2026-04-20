@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
-// SKEMA DIPERBAIKI (Ditambah kolom identitas)
+// SCHEMA DIPERBAIKI: Menambahkan kolom identitas agar bisa disimpan
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
     customer: { type: String, default: "" },
@@ -35,6 +35,7 @@ app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.ht
 app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 app.post('/auth-login', (req, res) => {
+    // Tambahkan pengembalian 'role' agar frontend tahu ini Superadmin
     if (req.body.username === "jodi" && req.body.password === "123") {
         return res.json({ success: true, role: 'superadmin' });
     }
@@ -48,20 +49,21 @@ app.get('/api/projects', async (req, res) => {
     } catch (err) { res.json([]); }
 });
 
-// LOGIKA UPDATE DIPERBAIKI
+// FUNGSI UPDATE DIPERBAIKI: Bisa menerima semua kolom
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
-        let updateData = {};
         
-        // Memasukkan data identitas jika dikirim
+        let updateData = {};
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
         if (varian) updateData.varian = varian;
         
-        // Memasukkan data progress
-        if (tahap && status) updateData[tahap] = status;
+        // Update tahap produksi jika dipilih
+        if (tahap && status) {
+            updateData[tahap] = status;
+        }
 
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
@@ -71,7 +73,7 @@ app.post('/api/update-progress', async (req, res) => {
         res.json({ success: true });
     } catch (err) { 
         console.error(err);
-        res.status(500).json({ success: false, message: err.message }); 
+        res.status(500).json({ success: false }); 
     }
 });
 
