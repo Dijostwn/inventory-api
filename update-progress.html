@@ -54,18 +54,17 @@
             }
         });
 
-        async function simpan() {
-    const btn = document.getElementById('btnSimpan');
+     async function simpan() {
+    const btn = document.querySelector('button'); // sesuaikan dengan id tombolmu
     const role = localStorage.getItem('userRole');
     
-    // Siapkan data dasar
     const data = {
         no_order: document.getElementById('no_order').value,
         tahap: document.getElementById('tahap').value,
         status: document.getElementById('status').value
     };
 
-    // Jika Superadmin, kirim juga data manualnya
+    // Khusus Superadmin, ambil nilai dari input manual
     if (role === 'superadmin') {
         data.customer = document.getElementById('customer').value;
         data.project_name = document.getElementById('project_name').value;
@@ -75,9 +74,6 @@
 
     if (!data.no_order) return alert("Isi NO. SO!");
 
-    btn.innerText = "Menyimpan...";
-    btn.disabled = true;
-
     try {
         const res = await fetch('/api/update-progress', {
             method: 'POST',
@@ -86,13 +82,12 @@
         });
 
         if (res.ok) {
-            alert("Berhasil!");
+            alert("Berhasil disimpan!");
             location.href = 'login.html';
+        } else {
+            alert("Gagal menyimpan ke server");
         }
     } catch (e) {
-        alert("Error!");
-    } finally {
-        btn.innerText = "Simpan";
-        btn.disabled = false;
+        alert("Koneksi Error!");
     }
 }
