@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB'))
+    .then(() => console.log('✅ Connected'))
     .catch(err => console.error('🛑 DB Error:', err));
 
 const projectSchema = new mongoose.Schema({
@@ -21,42 +21,44 @@ const projectSchema = new mongoose.Schema({
     connection: { type: String, default: "" },
     final_assy: { type: String, default: "" },
     internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" },
-    fat: { type: String, default: "" }
+    finishing: { type: String, default: "" }
 });
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
+// DAFTAR ADMIN & HAK AKSESNYA
+const ADMIN_ROLES = {
+    "jodi": "superadmin", // Password 123
+    "admin_design": "design_approval",
+    "admin_tank": "tank_making",
+    "admin_core": "core_making",
+    "admin_coil": "coil_making",
+    "admin_assy": "core_coil_assy",
+    "admin_conn": "connection",
+    "admin_final": "final_assy",
+    "admin_test": "internal_test",
+    "admin_finish": "finishing"
+};
 
 app.post('/auth-login', (req, res) => {
-    if (req.body.username === "jodi" && req.body.password === "123") return res.json({ success: true });
+    const { username, password } = req.body;
+    if (ADMIN_ROLES[username] && password === "123") {
+        return res.json({ success: true, role: ADMIN_ROLES[username] });
+    }
     res.status(401).json({ success: false });
-});
-
-app.get('/api/projects', async (req, res) => {
-    try {
-        const data = await Project.find().sort({ no_order: 1 });
-        res.json(data);
-    } catch (err) { res.json([]); }
 });
 
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
-        
         let updateData = {};
-        if (tahap && status) {
-            updateData[tahap] = status;
-        }
-        if (customer !== undefined) updateData.customer = customer;
-        if (project_name !== undefined) updateData.project_name = project_name;
-        if (quantity !== undefined) updateData.quantity = quantity;
-        if (varian !== undefined) updateData.varian = varian;
+        if (tahap && status) updateData[tahap] = status;
+        if (customer) updateData.customer = customer;
+        if (project_name) updateData.project_name = project_name;
+        if (quantity) updateData.quantity = quantity;
+        if (varian) updateData.varian = varian;
 
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
@@ -67,11 +69,14 @@ app.post('/api/update-progress', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+app.get('/api/projects', async (req, res) => {
+    const data = await Project.find().sort({ no_order: 1 });
+    res.json(data);
+});
+
 app.delete('/api/projects/:no_order', async (req, res) => {
-    try {
-        await Project.findOneAndDelete({ no_order: req.params.no_order });
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    await Project.findOneAndDelete({ no_order: req.params.no_order });
+    res.json({ success: true });
 });
 
 module.exports = app;
