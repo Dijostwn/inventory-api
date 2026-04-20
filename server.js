@@ -9,6 +9,11 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
+    customer: { type: String, default: "" },
+    project_name: { type: String, default: "" },
+    quantity: { type: String, default: "" },
+    varian: { type: String, default: "" },
+    design_approval: { type: String, default: "" },
     tank_making: { type: String, default: "" },
     core_making: { type: String, default: "" },
     coil_making: { type: String, default: "" },
@@ -42,17 +47,26 @@ app.get('/api/projects', async (req, res) => {
 
 app.post('/api/update-progress', async (req, res) => {
     try {
-        const { no_order, tahap, status } = req.body;
+        const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
+        
+        let updateData = {};
+        if (tahap && status) {
+            updateData[tahap] = status;
+        }
+        if (customer !== undefined) updateData.customer = customer;
+        if (project_name !== undefined) updateData.project_name = project_name;
+        if (quantity !== undefined) updateData.quantity = quantity;
+        if (varian !== undefined) updateData.varian = varian;
+
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
-            { $set: { [tahap]: status } },
+            { $set: updateData },
             { upsert: true, new: true }
         );
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// API HAPUS NO ORDER
 app.delete('/api/projects/:no_order', async (req, res) => {
     try {
         await Project.findOneAndDelete({ no_order: req.params.no_order });
