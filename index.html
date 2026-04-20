@@ -26,45 +26,21 @@
     </div>
 
     <script>
-        async function doLogin() {
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
-            const btn = document.getElementById('btnLogin');
-
-            if(!user || !pass) return alert("Isi username dan password!");
-
-            btn.innerText = "Checking...";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/auth-login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                });
-
-                const result = await res.json();
-
-                if (res.ok && result.success) { 
-                    // PENTING: Simpan Role ke browser agar halaman lain tidak error
-                    localStorage.setItem('userRole', result.role);
-                    window.location.href = '/login.html'; 
-                } else { 
-                    alert("Login Gagal! Username atau Password salah."); 
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Koneksi Error ke Server!");
-            } finally {
-                btn.innerText = "Masuk ke System";
-                btn.disabled = false;
-            }
-        }
-
-        // Jalankan login jika pencet tombol 'Enter'
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') doLogin();
-        });
-    </script>
-</body>
-</html>
+       async function doLogin() {
+    const user = document.getElementById('user').value;
+    const pass = document.getElementById('pass').value;
+    const res = await fetch('/auth-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+    });
+    
+    const result = await res.json();
+    if (res.ok) { 
+        // SIMPAN ROLE KE LOCAL STORAGE
+        localStorage.setItem('userRole', result.role);
+        window.location.href = 'login.html'; 
+    } else { 
+        alert("Login Gagal!"); 
+    }
+}
