@@ -4,7 +4,7 @@
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "server.js" },
+    { "src": "/api/(.*)", "dest": "server.js", "methods": ["GET", "POST", "DELETE", "OPTIONS"] },
     { "src": "/auth-login", "dest": "server.js" },
     { "src": "/login.html", "dest": "server.js" },
     { "src": "/update-progress.html", "dest": "server.js" },
