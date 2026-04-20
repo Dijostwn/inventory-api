@@ -7,13 +7,13 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
-// SKEMA LENGKAP AGAR BISA SIMPAN SEMUA DATA
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
     customer: { type: String, default: "" },
     project_name: { type: String, default: "" },
     quantity: { type: String, default: "" },
     varian: { type: String, default: "" },
+    design_approval: { type: String, default: "" },
     tank_making: { type: String, default: "" },
     core_making: { type: String, default: "" },
     coil_making: { type: String, default: "" },
@@ -21,19 +21,22 @@ const projectSchema = new mongoose.Schema({
     connection: { type: String, default: "" },
     final_assy: { type: String, default: "" },
     internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" },
-    fat: { type: String, default: "" }
+    finishing: { type: String, default: "" }
 });
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// DAFTAR AKUN ADMIN
 const ADMIN_ROLES = {
     "jodi": "superadmin",
     "admin_tank": "tank_making"
 };
+
+// NAVIGASI FILE HTML (PENTING AGAR TIDAK CANNOT GET)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 app.post('/auth-login', (req, res) => {
     const { username, password } = req.body;
@@ -47,8 +50,6 @@ app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
         let updateData = {};
-        
-        // Simpan data identitas jika ada (khusus superadmin)
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
