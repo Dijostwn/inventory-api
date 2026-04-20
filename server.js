@@ -7,6 +7,7 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
+// SKEMA DIPERBAIKI (Ditambah kolom identitas)
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
     customer: { type: String, default: "" },
@@ -21,40 +22,45 @@ const projectSchema = new mongoose.Schema({
     connection: { type: String, default: "" },
     final_assy: { type: String, default: "" },
     internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" }
+    finishing: { type: String, default: "" },
+    fat: { type: String, default: "" }
 });
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const ADMIN_ROLES = {
-    "jodi": "superadmin",
-    "admin_tank": "tank_making",
-    "admin_core": "core_making"
-};
-
-// Rute Navigasi agar tidak "Cannot GET"
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 app.post('/auth-login', (req, res) => {
-    const { username, password } = req.body;
-    if (ADMIN_ROLES[username] && password === "123") {
-        return res.json({ success: true, role: ADMIN_ROLES[username] });
+    if (req.body.username === "jodi" && req.body.password === "123") {
+        return res.json({ success: true, role: 'superadmin' });
     }
     res.status(401).json({ success: false });
 });
 
+app.get('/api/projects', async (req, res) => {
+    try {
+        const data = await Project.find().sort({ no_order: 1 });
+        res.json(data);
+    } catch (err) { res.json([]); }
+});
+
+// LOGIKA UPDATE DIPERBAIKI
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
         let updateData = {};
+        
+        // Memasukkan data identitas jika dikirim
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
         if (varian) updateData.varian = varian;
+        
+        // Memasukkan data progress
         if (tahap && status) updateData[tahap] = status;
 
         await Project.findOneAndUpdate(
@@ -63,12 +69,17 @@ app.post('/api/update-progress', async (req, res) => {
             { upsert: true, new: true }
         );
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        console.error(err);
+        res.status(500).json({ success: false, message: err.message }); 
+    }
 });
 
-app.get('/api/projects', async (req, res) => {
-    const data = await Project.find().sort({ no_order: 1 });
-    res.json(data);
+app.delete('/api/projects/:no_order', async (req, res) => {
+    try {
+        await Project.findOneAndDelete({ no_order: req.params.no_order });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
 module.exports = app;
