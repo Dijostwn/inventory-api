@@ -2,105 +2,70 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Monitoring - Weltraf</title>
+    <title>Dashboard Monitoring</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-4">
     <div class="max-w-[98%] mx-auto bg-white p-6 rounded-xl shadow-lg">
         <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-xl font-bold text-gray-800">Monitoring Produksi Trafo Weltraf</h1>
-                <p id="user-info" class="text-xs text-blue-600 font-semibold uppercase"></p>
-            </div>
+            <h1 class="text-xl font-bold">Monitoring Produksi Trafo Weltraf</h1>
             <div class="space-x-2">
-                <button onclick="location.href='update-progress.html'" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-blue-700">Update Progress</button>
-                <button onclick="logout()" class="bg-red-100 text-red-600 px-4 py-2 rounded text-sm font-bold hover:bg-red-200">Logout</button>
+                <button onclick="location.href='update-progress.html'" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">Update Progress</button>
+                <button onclick="localStorage.clear(); location.href='index.html'" class="bg-red-100 text-red-600 px-4 py-2 rounded text-sm">Logout</button>
             </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full border-collapse text-center text-[10px]">
-                <thead class="bg-gray-200 uppercase font-bold text-gray-700">
+                <thead class="bg-gray-200 font-bold uppercase">
                     <tr>
-                        <th class="border p-2">NO. SO</th>
-                        <th class="border p-2">CUSTOMER</th>
-                        <th class="border p-2">PROJECT</th>
-                        <th class="border p-2">QTY</th>
-                        <th class="border p-2">VARIAN (KVA)</th>
-                        <th class="border p-2">DESIGN</th>
-                        <th class="border p-2">TANK</th>
-                        <th class="border p-2">CORE</th>
-                        <th class="border p-2">COIL</th>
-                        <th class="border p-2">ASSY</th>
-                        <th class="border p-2">CONN</th>
-                        <th class="border p-2">FINAL</th>
-                        <th class="border p-2">TEST</th>
-                        <th class="border p-2">FINISH</th>
+                        <th class="border p-2">NO. SO</th><th class="border p-2">CUSTOMER</th><th class="border p-2">PROJECT</th>
+                        <th class="border p-2">QTY</th><th class="border p-2">VARIAN</th><th class="border p-2">DSGN</th>
+                        <th class="border p-2">TANK</th><th class="border p-2">CORE</th><th class="border p-2">COIL</th>
+                        <th class="border p-2">ASSY</th><th class="border p-2">CONN</th><th class="border p-2">FINAL</th>
+                        <th class="border p-2">TEST</th><th class="border p-2">FINISH</th>
                     </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
             </table>
         </div>
     </div>
-
     <script>
         const role = localStorage.getItem('userRole');
         if (!role) window.location.href = 'index.html';
-        document.getElementById('user-info').innerText = `Logged in as: ${role}`;
 
         async function loadData() {
-            try {
-                const res = await fetch('/api/projects');
-                const data = await res.json();
-                const body = document.getElementById('table-body');
-                body.innerHTML = '';
-                
-                const getColor = (s) => {
-                    if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
-                    if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
-                    if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
-                    return 'bg-white text-transparent border-gray-100';
-                };
+            const res = await fetch('/api/projects');
+            const data = await res.json();
+            const body = document.getElementById('table-body');
+            body.innerHTML = '';
+            
+            const getColor = (s) => {
+                if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
+                if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
+                if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
+                return 'bg-white text-transparent border-gray-100';
+            };
 
-                data.forEach(p => {
-                    const isSuper = role === 'superadmin';
-                    body.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="border p-2 font-bold uppercase bg-gray-50 relative group">
-                                ${p.no_order}
-                                ${isSuper ? `<button onclick="hapusOrder('${p.no_order}')" class="hidden group-hover:block absolute top-0 right-0 bg-red-500 text-white text-[8px] px-1 rounded cursor-pointer">X</button>` : ''}
-                            </td>
-                            <td class="border p-2 font-medium">${p.customer || '-'}</td>
-                            <td class="border p-2">${p.project_name || '-'}</td>
-                            <td class="border p-2">${p.quantity || '-'}</td>
-                            <td class="border p-2">${p.varian || '-'}</td>
-                            <td class="border p-2 ${getColor(p.design_approval)}">.</td>
-                            <td class="border p-2 ${getColor(p.tank_making)}">.</td>
-                            <td class="border p-2 ${getColor(p.core_making)}">.</td>
-                            <td class="border p-2 ${getColor(p.coil_making)}">.</td>
-                            <td class="border p-2 ${getColor(p.core_coil_assy)}">.</td>
-                            <td class="border p-2 ${getColor(p.connection)}">.</td>
-                            <td class="border p-2 ${getColor(p.final_assy)}">.</td>
-                            <td class="border p-2 ${getColor(p.internal_test)}">.</td>
-                            <td class="border p-2 ${getColor(p.finishing)}">.</td>
-                        </tr>`;
-                });
-            } catch (e) { console.error("Gagal load data"); }
+            data.forEach(p => {
+                const isSuper = role === 'superadmin';
+                body.innerHTML += `
+                    <tr>
+                        <td class="border p-2 font-bold bg-gray-50 relative group">${p.no_order}
+                            ${isSuper ? `<button onclick="hapusOrder('${p.no_order}')" class="hidden group-hover:block absolute top-0 right-0 bg-red-500 text-white text-[8px] px-1 rounded">X</button>` : ''}
+                        </td>
+                        <td class="border p-2">${p.customer || '-'}</td><td class="border p-2">${p.project_name || '-'}</td>
+                        <td class="border p-2">${p.quantity || '-'}</td><td class="border p-2">${p.varian || '-'}</td>
+                        <td class="border p-2 ${getColor(p.design_approval)}">.</td><td class="border p-2 ${getColor(p.tank_making)}">.</td>
+                        <td class="border p-2 ${getColor(p.core_making)}">.</td><td class="border p-2 ${getColor(p.coil_making)}">.</td>
+                        <td class="border p-2 ${getColor(p.core_coil_assy)}">.</td><td class="border p-2 ${getColor(p.connection)}">.</td>
+                        <td class="border p-2 ${getColor(p.final_assy)}">.</td><td class="border p-2 ${getColor(p.internal_test)}">.</td>
+                        <td class="border p-2 ${getColor(p.finishing)}">.</td>
+                    </tr>`;
+            });
         }
-
-        async function hapusOrder(no) {
-            if(confirm(`Hapus seluruh data NO. SO: ${no}?`)) {
-                await fetch(`/api/projects/${no}`, { method: 'DELETE' });
-                loadData();
-            }
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
+        async function hapusOrder(no) { if(confirm('Hapus '+no+'?')){ await fetch('/api/projects/'+no,{method:'DELETE'}); loadData(); } }
         loadData();
-        setInterval(loadData, 5000); // Auto refresh tiap 5 detik
+        setInterval(loadData, 5000);
     </script>
 </body>
 </html>
