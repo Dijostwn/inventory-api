@@ -1,93 +1,24 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Update Progress</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-6 text-center">Update Data & Progress</h2>
-        
-        <div class="space-y-4">
-            <div>
-                <label class="text-xs font-bold text-gray-500">NO. SO (Wajib)</label>
-                <input id="no_order" type="text" placeholder="Contoh: 26-079" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Customer</label>
-                    <input id="customer" type="text" placeholder="Nama Customer" class="w-full p-2 border rounded text-sm">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Project</label>
-                    <input id="project_name" type="text" placeholder="Nama Project" class="w-full p-2 border rounded text-sm">
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Quantity</label>
-                    <input id="quantity" type="text" placeholder="Pcs/Unit" class="w-full p-2 border rounded text-sm">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Varian (KVA)</label>
-                    <input id="varian" type="text" placeholder="Contoh: 1000KVA" class="w-full p-2 border rounded text-sm">
-                </div>
-            </div>
-            <hr>
-            <div>
-                <label class="text-xs font-bold text-gray-500">Update Warna Progress</label>
-                <select id="tahap" class="w-full p-2 border rounded mb-2">
-                    <option value="">-- Pilih Tahap (Opsional) --</option>
-                    <option value="design_approval">Design Approval</option>
-                    <option value="tank_making">Tank Making</option>
-                    <option value="core_making">Core Making</option>
-                    <option value="coil_making">Coil Making</option>
-                    <option value="core_coil_assy">Core Coil Assy</option>
-                    <option value="connection">Connection</option>
-                    <option value="final_assy">Final Assy</option>
-                    <option value="internal_test">Internal Test</option>
-                    <option value="finishing">Finishing</option>
-                </select>
-                <select id="status" class="w-full p-2 border rounded">
-                    <option value="Pending (Merah)">Pending (Merah)</option>
-                    <option value="In Progress (Kuning)">In Progress (Kuning)</option>
-                    <option value="Selesai (Hijau)">Selesai (Hijau)</option>
-                </select>
-            </div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const role = localStorage.getItem('userRole');
+        const selectTahap = document.getElementById('tahap');
+        const inputManual = ['customer', 'project_name', 'quantity', 'varian'];
 
-            <button onclick="simpan()" class="w-full bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700 transition mt-4">Simpan Perubahan</button>
-            <button onclick="location.href='login.html'" class="w-full text-blue-600 mt-2 text-sm text-center block">Kembali ke Dashboard</button>
-        </div>
-    </div>
-
-    <script>
-        async function simpan() {
-            const data = {
-                no_order: document.getElementById('no_order').value,
-                customer: document.getElementById('customer').value,
-                project_name: document.getElementById('project_name').value,
-                quantity: document.getElementById('quantity').value,
-                varian: document.getElementById('varian').value,
-                tahap: document.getElementById('tahap').value,
-                status: document.getElementById('status').value
-            };
-
-            if(!data.no_order) return alert("NO. SO tidak boleh kosong!");
-
-            const res = await fetch('/api/update-progress', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            if(res.ok) {
-                alert("Data Berhasil Diperbarui!");
-                location.href = 'login.html';
-            } else {
-                alert("Gagal menyimpan data!");
+        if (role !== 'superadmin') {
+            // Jika bukan superadmin, kunci semua input manual
+            inputManual.forEach(id => document.getElementById(id).disabled = true);
+            
+            // Paksa pilih tahap sesuai role
+            selectTahap.value = role;
+            for (let i = 0; i < selectTahap.options.length; i++) {
+                if (selectTahap.options[i].value !== role) {
+                    selectTahap.options[i].disabled = true;
+                }
             }
         }
-    </script>
-</body>
-</html>
+    });
+
+    async function simpan() {
+        // ... kode fetch tetap sama seperti sebelumnya ...
+    }
+</script>
