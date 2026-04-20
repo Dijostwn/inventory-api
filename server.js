@@ -29,33 +29,15 @@ const Project = mongoose.model('Project', projectSchema);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const ADMIN_ROLES = {
-    "jodi": "superadmin",
-    "admin_design": "design_approval",
-    "admin_tank": "tank_making",
-    "admin_core": "core_making",
-    "admin_coil": "coil_making",
-    "admin_assy": "core_coil_assy",
-    "admin_conn": "connection",
-    "admin_final": "final_assy",
-    "admin_test": "internal_test",
-    "admin_finish": "finishing"
-};
-
-app.post('/auth-login', (req, res) => {
-    const { username, password } = req.body;
-    if (ADMIN_ROLES[username] && password === "123") {
-        return res.json({ success: true, role: ADMIN_ROLES[username] });
-    }
-    res.status(401).json({ success: false });
-});
+// Navigasi agar tidak Cannot GET
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
         let updateData = {};
-        
-        // Hanya update kolom yang dikirim (tidak menimpa data lama dengan string kosong)
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
@@ -70,15 +52,6 @@ app.post('/api/update-progress', async (req, res) => {
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
-
-app.get('/api/projects', async (req, res) => {
-    const data = await Project.find().sort({ no_order: 1 });
-    res.json(data);
-});
-
-// Tambahkan rute eksplisit untuk file HTML agar tidak "Cannot GET"
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 module.exports = app;
 app.listen(3000);
