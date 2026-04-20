@@ -2,127 +2,71 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Progress - Weltraf</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 class="text-xl font-bold mb-6 text-center text-gray-800">Update Data Produksi</h2>
-        
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">NOMOR SO / ORDER</label>
-                <input id="no_order" type="text" placeholder="Contoh: 26-079" class="w-full p-3 border rounded-lg font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
+            <input id="no_order" type="text" placeholder="NOMOR SO (Contoh: 26-079)" class="w-full p-3 border rounded-lg font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500">
+            
             <div id="identitas-section" class="grid grid-cols-2 gap-2">
                 <input id="customer" type="text" placeholder="Customer" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
                 <input id="project_name" type="text" placeholder="Project" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
                 <input id="quantity" type="text" placeholder="Qty" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
-                <input id="varian" type="text" placeholder="Varian (KVA)" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
+                <input id="varian" type="text" placeholder="KVA" class="manual-input w-full p-2 border rounded text-sm bg-gray-50 disabled:bg-gray-200">
             </div>
 
-            <hr class="my-2">
+            <select id="tahap" class="w-full p-3 border rounded-lg bg-white outline-none">
+                <option value="">-- Pilih Tahap --</option>
+                <option value="tank_making">Tank Making</option>
+                <option value="core_making">Core Making</option>
+                <option value="coil_making">Coil Making</option>
+                <option value="core_coil_assy">Core Coil Assy</option>
+                <option value="connection">Connection</option>
+                <option value="final_assy">Final Assy</option>
+                <option value="internal_test">Internal Test</option>
+                <option value="finishing">Finishing</option>
+            </select>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">TAHAP PRODUKSI</label>
-                <select id="tahap" class="w-full p-3 border rounded-lg bg-white outline-none">
-                    <option value="">-- Pilih Tahap --</option>
-                    <option value="tank_making">Tank Making</option>
-                    <option value="core_making">Core Making</option>
-                    <option value="coil_making">Coil Making</option>
-                    <option value="core_coil_assy">Core Coil Assy</option>
-                    <option value="connection">Connection</option>
-                    <option value="final_assy">Final Assy</option>
-                    <option value="internal_test">Internal Test</option>
-                    <option value="finishing">Finishing</option>
-                </select>
-            </div>
+            <select id="status" class="w-full p-3 border rounded-lg bg-white outline-none">
+                <option value="Pending (Merah)">🔴 Pending</option>
+                <option value="In Progress (Kuning)">🟡 In Progress</option>
+                <option value="Selesai (Hijau)">🟢 Selesai</option>
+            </select>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">STATUS</label>
-                <select id="status" class="w-full p-3 border rounded-lg bg-white outline-none">
-                    <option value="Pending (Merah)">🔴 Pending</option>
-                    <option value="In Progress (Kuning)">🟡 In Progress</option>
-                    <option value="Selesai (Hijau)">🟢 Selesai</option>
-                </select>
-            </div>
-
-            <button onclick="simpanData()" id="btnSimpan" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-bold shadow-md transition-all">
-                Simpan Perubahan
-            </button>
-            
-            <button onclick="window.location.href='/login.html'" class="w-full text-gray-400 text-sm hover:underline">
-                Kembali ke Dashboard
-            </button>
+            <button onclick="simpanData()" id="btnSimpan" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-bold">Simpan Perubahan</button>
+            <button onclick="window.location.href='/login.html'" class="w-full text-gray-400 text-sm hover:underline">Kembali</button>
         </div>
     </div>
-
     <script>
         const role = localStorage.getItem('userRole');
-        
         document.addEventListener('DOMContentLoaded', () => {
-            if (!role) {
-                alert("Silakan login kembali.");
-                window.location.href = '/';
-                return;
-            }
-
-            // Jika bukan superadmin, kunci input identitas
             if (role !== 'superadmin') {
                 document.querySelectorAll('.manual-input').forEach(el => el.disabled = true);
-                
-                // Kunci pilihan tahap sesuai job admin
-                const selectTahap = document.getElementById('tahap');
-                selectTahap.value = role;
-                Array.from(selectTahap.options).forEach(opt => {
-                    if (opt.value !== role && opt.value !== "") opt.disabled = true;
-                });
             }
         });
 
         async function simpanData() {
-            const noOrder = document.getElementById('no_order').value.trim();
-            if (!noOrder) return alert("Nomor Order wajib diisi!");
-
             const payload = {
-                no_order: noOrder,
+                no_order: document.getElementById('no_order').value.trim(),
                 tahap: document.getElementById('tahap').value,
                 status: document.getElementById('status').value
             };
-
-            // Kirim identitas hanya jika diisi (Superadmin)
             if (role === 'superadmin') {
                 payload.customer = document.getElementById('customer').value;
                 payload.project_name = document.getElementById('project_name').value;
                 payload.quantity = document.getElementById('quantity').value;
                 payload.varian = document.getElementById('varian').value;
             }
-
-            const btn = document.getElementById('btnSimpan');
-            btn.innerText = "Menyimpan...";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/update-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    alert("Data Berhasil Diperbarui!");
-                    window.location.href = '/login.html';
-                } else {
-                    alert("Gagal Simpan ke Database!");
-                }
-            } catch (error) {
-                alert("Error Koneksi!");
-            } finally {
-                btn.innerText = "Simpan Perubahan";
-                btn.disabled = false;
-            }
+            const res = await fetch('/api/update-progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) { alert("Berhasil!"); window.location.href = '/login.html'; }
+            else { alert("Gagal Simpan!"); }
         }
     </script>
 </body>
