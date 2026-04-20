@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Connected'))
+    .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
 const projectSchema = new mongoose.Schema({
@@ -24,23 +24,12 @@ const Project = mongoose.model('Project', projectSchema);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ROUTING HALAMAN - Pastikan path file benar
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
-app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-app.get('/update-progress.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'update-progress.html'));
-});
-
-// API
 app.post('/auth-login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === "jodi" && password === "123") return res.json({ success: true });
+    if (req.body.username === "jodi" && req.body.password === "123") return res.json({ success: true });
     res.status(401).json({ success: false });
 });
 
@@ -63,15 +52,13 @@ app.post('/api/update-progress', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// API untuk Hapus No Order
+// API HAPUS NO ORDER
 app.delete('/api/projects/:no_order', async (req, res) => {
     try {
-        const no_order = req.params.no_order;
-        await Project.findOneAndDelete({ no_order: no_order });
-        res.json({ success: true, message: "Data berhasil dihapus" });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+        await Project.findOneAndDelete({ no_order: req.params.no_order });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
 module.exports = app;
+app.listen(3000);
