@@ -63,4 +63,15 @@ app.post('/api/update-progress', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+// API untuk Hapus No Order
+app.delete('/api/projects/:no_order', async (req, res) => {
+    try {
+        const no_order = req.params.no_order;
+        await Project.findOneAndDelete({ no_order: no_order });
+        res.json({ success: true, message: "Data berhasil dihapus" });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = app;
