@@ -21,18 +21,31 @@ const projectSchema = new mongoose.Schema({
     connection: { type: String, default: "" },
     final_assy: { type: String, default: "" },
     internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" },
-    fat: { type: String, default: "" }
+    finishing: { type: String, default: "" }
 });
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Navigasi agar tidak Cannot GET
+const ADMIN_ROLES = {
+    "jodi": "superadmin",
+    "admin_tank": "tank_making",
+    "admin_core": "core_making"
+};
+
+// Rute Navigasi agar tidak "Cannot GET"
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
+
+app.post('/auth-login', (req, res) => {
+    const { username, password } = req.body;
+    if (ADMIN_ROLES[username] && password === "123") {
+        return res.json({ success: true, role: ADMIN_ROLES[username] });
+    }
+    res.status(401).json({ success: false });
+});
 
 app.post('/api/update-progress', async (req, res) => {
     try {
@@ -51,6 +64,11 @@ app.post('/api/update-progress', async (req, res) => {
         );
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/projects', async (req, res) => {
+    const data = await Project.find().sort({ no_order: 1 });
+    res.json(data);
 });
 
 module.exports = app;
