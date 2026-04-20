@@ -7,7 +7,6 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
-// TAMBAHKAN KOLOM IDENTITAS DI SINI AGAR BISA DISIMPAN
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
     customer: { type: String, default: "" },
@@ -30,7 +29,6 @@ const Project = mongoose.model('Project', projectSchema);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// DAFTAR ADMIN ROLE
 const ADMIN_ROLES = {
     "jodi": "superadmin",
     "admin_design": "design_approval",
@@ -57,7 +55,7 @@ app.post('/api/update-progress', async (req, res) => {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
         let updateData = {};
         
-        // Hanya simpan kolom yang ada isinya (mencegah data lama terhapus)
+        // Hanya update kolom yang dikirim (tidak menimpa data lama dengan string kosong)
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
@@ -78,10 +76,9 @@ app.get('/api/projects', async (req, res) => {
     res.json(data);
 });
 
-app.delete('/api/projects/:no_order', async (req, res) => {
-    await Project.findOneAndDelete({ no_order: req.params.no_order });
-    res.json({ success: true });
-});
+// Tambahkan rute eksplisit untuk file HTML agar tidak "Cannot GET"
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
 
 module.exports = app;
 app.listen(3000);
