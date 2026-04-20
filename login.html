@@ -38,19 +38,20 @@
             const body = document.getElementById('table-body');
             body.innerHTML = '';
             
-           const getColor = (s) => {
-            if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
-            if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
-            if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
-    
-    // Jika data kosong (""), maka tampilkan warna putih/polos
-            return 'bg-white text-transparent border-gray-100'; 
-        };
+            const getColor = (s) => {
+                if (s === 'Selesai (Hijau)') return 'bg-green-500 text-transparent';
+                if (s === 'In Progress (Kuning)') return 'bg-yellow-400 text-transparent';
+                if (s === 'Pending (Merah)') return 'bg-red-500 text-transparent';
+                return 'bg-white text-transparent border-gray-100';
+            };
 
             data.forEach(p => {
                 body.innerHTML += `
                     <tr>
-                        <td class="border p-2 font-bold uppercase bg-gray-50">${p.no_order}</td>
+                        <td class="border p-2 font-bold uppercase bg-gray-50 relative group">
+                            ${p.no_order}
+                            <button onclick="hapusOrder('${p.no_order}')" class="hidden group-hover:block absolute top-0 right-0 bg-red-500 text-white text-[9px] px-1 rounded cursor-pointer">X</button>
+                        </td>
                         <td class="border p-2 ${getColor(p.tank_making)}">.</td>
                         <td class="border p-2 ${getColor(p.core_making)}">.</td>
                         <td class="border p-2 ${getColor(p.coil_making)}">.</td>
@@ -63,6 +64,14 @@
                     </tr>`;
             });
         }
+
+        async function hapusOrder(noOrder) {
+            if(confirm('Hapus No Order ' + noOrder + '?')) {
+                await fetch('/api/projects/' + noOrder, { method: 'DELETE' });
+                loadData();
+            }
+        }
+
         loadData();
         setInterval(loadData, 5000);
     </script>
