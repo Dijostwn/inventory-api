@@ -2,104 +2,59 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Update Progress - Weltraf</title>
+    <title>Update Progress</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-2 text-center text-gray-800">Update Produksi</h2>
-        <p id="role-tag" class="text-center text-[10px] font-bold text-blue-600 uppercase mb-6"></p>
-        
+        <h2 class="text-xl font-bold mb-6 text-center">Update Data Produksi</h2>
         <div class="space-y-4">
-            <div>
-                <label class="text-xs font-bold text-gray-500">NO. SO (Wajib)</label>
-                <input id="no_order" type="text" placeholder="Masukkan NO. SO" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-            </div>
-
+            <input id="no_order" type="text" placeholder="NO. SO (Wajib)" class="w-full p-2 border rounded font-bold">
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Customer</label>
-                    <input id="customer" type="text" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Project</label>
-                    <input id="project_name" type="text" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
+                <input id="customer" type="text" placeholder="Customer" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
+                <input id="project_name" type="text" placeholder="Project" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
             </div>
-
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Quantity</label>
-                    <input id="quantity" type="text" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Varian (KVA)</label>
-                    <input id="varian" type="text" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
-                </div>
+                <input id="quantity" type="text" placeholder="Qty" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
+                <input id="varian" type="text" placeholder="Varian (KVA)" class="manual-input w-full p-2 border rounded text-sm bg-gray-50">
             </div>
-
-            <hr class="my-4">
-
-            <div>
-                <label class="text-xs font-bold text-gray-500">Tahap Produksi</label>
-                <select id="tahap" class="w-full p-2 border rounded mb-3 bg-white">
-                    <option value="">-- Pilih Tahap --</option>
-                    <option value="design_approval">Design Approval</option>
-                    <option value="tank_making">Tank Making</option>
-                    <option value="core_making">Core Making</option>
-                    <option value="coil_making">Coil Making</option>
-                    <option value="core_coil_assy">Core Coil Assy</option>
-                    <option value="connection">Connection</option>
-                    <option value="final_assy">Final Assy</option>
-                    <option value="internal_test">Internal Test</option>
-                    <option value="finishing">Finishing</option>
-                </select>
-
-                <label class="text-xs font-bold text-gray-500">Status Progress</label>
-                <select id="status" class="w-full p-2 border rounded bg-white">
-                    <option value="Pending (Merah)">Pending (Merah)</option>
-                    <option value="In Progress (Kuning)">In Progress (Kuning)</option>
-                    <option value="Selesai (Hijau)">Selesai (Hijau)</option>
-                </select>
-            </div>
-
-            <button onclick="simpan()" id="btnSimpan" class="w-full bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700 transition mt-4">Simpan Perubahan</button>
-            <button onclick="location.href='login.html'" class="w-full text-gray-500 mt-2 text-sm text-center block">Batal</button>
+            <hr>
+            <select id="tahap" class="w-full p-2 border rounded">
+                <option value="">-- Pilih Tahap --</option>
+                <option value="design_approval">Design Approval</option>
+                <option value="tank_making">Tank Making</option>
+                <option value="core_making">Core Making</option>
+                <option value="coil_making">Coil Making</option>
+                <option value="core_coil_assy">Core Coil Assy</option>
+                <option value="connection">Connection</option>
+                <option value="final_assy">Final Assy</option>
+                <option value="internal_test">Internal Test</option>
+                <option value="finishing">Finishing</option>
+            </select>
+            <select id="status" class="w-full p-2 border rounded">
+                <option value="Pending (Merah)">Pending (Merah)</option>
+                <option value="In Progress (Kuning)">In Progress (Kuning)</option>
+                <option value="Selesai (Hijau)">Selesai (Hijau)</option>
+            </select>
+            <button onclick="simpan()" class="w-full bg-green-600 text-white p-3 rounded font-bold">Simpan</button>
+            <button onclick="location.href='login.html'" class="w-full text-gray-500 text-sm">Kembali</button>
         </div>
     </div>
-
     <script>
         const role = localStorage.getItem('userRole');
-        if (!role) window.location.href = 'index.html';
-        document.getElementById('role-tag').innerText = `Akses: ${role}`;
-
         document.addEventListener('DOMContentLoaded', () => {
             const isSuper = role === 'superadmin';
-            const manualInputs = document.querySelectorAll('.manual-input');
             const selectTahap = document.getElementById('tahap');
-
             if (!isSuper) {
-                // Kunci input manual untuk admin biasa
-                manualInputs.forEach(input => {
-                    input.disabled = true;
-                    input.classList.add('bg-gray-200', 'cursor-not-allowed');
-                });
-
-                // Kunci pilihan tahap hanya ke bagiannya masing-masing
+                document.querySelectorAll('.manual-input').forEach(i => i.disabled = true);
                 selectTahap.value = role;
-                for (let i = 0; i < selectTahap.options.length; i++) {
-                    if (selectTahap.options[i].value !== role && selectTahap.options[i].value !== "") {
-                        selectTahap.options[i].disabled = true;
-                    }
-                }
-            } else {
-                // Superadmin bisa edit input manual
-                manualInputs.forEach(input => input.classList.remove('bg-gray-50'));
+                Array.from(selectTahap.options).forEach(opt => {
+                    if (opt.value !== role && opt.value !== "") opt.disabled = true;
+                });
             }
         });
 
         async function simpan() {
-            const btn = document.getElementById('btnSimpan');
             const data = {
                 no_order: document.getElementById('no_order').value,
                 customer: document.getElementById('customer').value,
@@ -109,31 +64,13 @@
                 tahap: document.getElementById('tahap').value,
                 status: document.getElementById('status').value
             };
-
-            if (!data.no_order) return alert("PENTING: Isi NO. SO terlebih dahulu!");
-
-            btn.innerText = "Menyimpan...";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/update-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (res.ok) {
-                    alert("Berhasil Diupdate!");
-                    location.href = 'login.html';
-                } else {
-                    alert("Gagal konek ke database!");
-                }
-            } catch (e) {
-                alert("Error koneksi!");
-            } finally {
-                btn.innerText = "Simpan Perubahan";
-                btn.disabled = false;
-            }
+            if(!data.no_order) return alert("Isi NO. SO!");
+            const res = await fetch('/api/update-progress', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if(res.ok) { alert("Berhasil!"); location.href='login.html'; }
         }
     </script>
 </body>
