@@ -7,6 +7,7 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
+// TAMBAHKAN KOLOM IDENTITAS DI SINI AGAR BISA DISIMPAN
 const projectSchema = new mongoose.Schema({
     no_order: { type: String, required: true, unique: true, trim: true },
     customer: { type: String, default: "" },
@@ -21,13 +22,15 @@ const projectSchema = new mongoose.Schema({
     connection: { type: String, default: "" },
     final_assy: { type: String, default: "" },
     internal_test: { type: String, default: "" },
-    finishing: { type: String, default: "" }
+    finishing: { type: String, default: "" },
+    fat: { type: String, default: "" }
 });
 const Project = mongoose.model('Project', projectSchema);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+// DAFTAR ADMIN ROLE
 const ADMIN_ROLES = {
     "jodi": "superadmin",
     "admin_design": "design_approval",
@@ -41,10 +44,6 @@ const ADMIN_ROLES = {
     "admin_finish": "finishing"
 };
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
-
 app.post('/auth-login', (req, res) => {
     const { username, password } = req.body;
     if (ADMIN_ROLES[username] && password === "123") {
@@ -53,18 +52,12 @@ app.post('/auth-login', (req, res) => {
     res.status(401).json({ success: false });
 });
 
-app.get('/api/projects', async (req, res) => {
-    const data = await Project.find().sort({ no_order: 1 });
-    res.json(data);
-});
-
-// LOGIKA UPDATE BARU: Tidak akan menghapus data lama jika input kosong
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
         let updateData = {};
         
-        // Hanya masukkan ke object update jika ada isinya
+        // Hanya simpan kolom yang ada isinya (mencegah data lama terhapus)
         if (customer) updateData.customer = customer;
         if (project_name) updateData.project_name = project_name;
         if (quantity) updateData.quantity = quantity;
@@ -78,6 +71,11 @@ app.post('/api/update-progress', async (req, res) => {
         );
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/projects', async (req, res) => {
+    const data = await Project.find().sort({ no_order: 1 });
+    res.json(data);
 });
 
 app.delete('/api/projects/:no_order', async (req, res) => {
