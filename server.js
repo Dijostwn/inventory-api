@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Connected'))
+    .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('🛑 DB Error:', err));
 
 const projectSchema = new mongoose.Schema({
@@ -28,9 +28,9 @@ const Project = mongoose.model('Project', projectSchema);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// DAFTAR ADMIN & HAK AKSESNYA
+// DAFTAR ROLE (Username: Kolom yang boleh diupdate)
 const ADMIN_ROLES = {
-    "jodi": "superadmin", // Password 123
+    "jodi": "superadmin",
     "admin_design": "design_approval",
     "admin_tank": "tank_making",
     "admin_core": "core_making",
@@ -42,6 +42,10 @@ const ADMIN_ROLES = {
     "admin_finish": "finishing"
 };
 
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/update-progress.html', (req, res) => res.sendFile(path.join(__dirname, 'update-progress.html')));
+
 app.post('/auth-login', (req, res) => {
     const { username, password } = req.body;
     if (ADMIN_ROLES[username] && password === "123") {
@@ -50,28 +54,28 @@ app.post('/auth-login', (req, res) => {
     res.status(401).json({ success: false });
 });
 
+app.get('/api/projects', async (req, res) => {
+    const data = await Project.find().sort({ no_order: 1 });
+    res.json(data);
+});
+
 app.post('/api/update-progress', async (req, res) => {
     try {
         const { no_order, customer, project_name, quantity, varian, tahap, status } = req.body;
-        let updateData = {};
-        if (tahap && status) updateData[tahap] = status;
-        if (customer) updateData.customer = customer;
-        if (project_name) updateData.project_name = project_name;
-        if (quantity) updateData.quantity = quantity;
-        if (varian) updateData.varian = varian;
+        let up = {};
+        if (tahap && status) up[tahap] = status;
+        if (customer !== undefined) up.customer = customer;
+        if (project_name !== undefined) up.project_name = project_name;
+        if (quantity !== undefined) up.quantity = quantity;
+        if (varian !== undefined) up.varian = varian;
 
         await Project.findOneAndUpdate(
             { no_order: no_order.toUpperCase().trim() },
-            { $set: updateData },
+            { $set: up },
             { upsert: true, new: true }
         );
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/projects', async (req, res) => {
-    const data = await Project.find().sort({ no_order: 1 });
-    res.json(data);
 });
 
 app.delete('/api/projects/:no_order', async (req, res) => {
