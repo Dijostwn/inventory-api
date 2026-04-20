@@ -2,31 +2,69 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Weltraf</title>
+    <title>Login - Weltraf Produksi</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded-lg shadow-xl w-96 text-center">
-        <h2 class="text-xl font-bold mb-6">MONITORING PRODUKSI WELTRAF</h2>
-        <input id="user" type="text" placeholder="Username" class="w-full p-3 border rounded mb-4">
-        <input id="pass" type="password" placeholder="Password" class="w-full p-3 border rounded mb-6">
-        <button onclick="doLogin()" id="btnLogin" class="w-full bg-blue-600 text-white p-3 rounded font-bold">Login</button>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">MONITORING WELTRAF</h2>
+        
+        <div class="space-y-4 text-left">
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Username</label>
+                <input id="user" type="text" placeholder="Masukkan Username" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Password</label>
+                <input id="pass" type="password" placeholder="Masukkan Password" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button onclick="doLogin()" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold transition-all shadow-lg">
+                Masuk ke System
+            </button>
+        </div>
+        <p class="text-[10px] text-gray-400 mt-6">IT Infrastructure PT Symphos Electric</p>
     </div>
+
     <script>
         async function doLogin() {
             const user = document.getElementById('user').value;
             const pass = document.getElementById('pass').value;
-            const res = await fetch('/auth-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: user, password: pass })
-            });
-            const result = await res.json();
-            if (res.ok) { 
-                localStorage.setItem('userRole', result.role);
-                window.location.href = 'login.html'; 
-            } else { alert("Login Gagal!"); }
+            const btn = document.getElementById('btnLogin');
+
+            if(!user || !pass) return alert("Isi username dan password!");
+
+            btn.innerText = "Checking...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/auth-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                const result = await res.json();
+
+                if (res.ok && result.success) { 
+                    // PENTING: Simpan Role ke browser agar halaman lain tidak error
+                    localStorage.setItem('userRole', result.role);
+                    window.location.href = '/login.html'; 
+                } else { 
+                    alert("Login Gagal! Username atau Password salah."); 
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Koneksi Error ke Server!");
+            } finally {
+                btn.innerText = "Masuk ke System";
+                btn.disabled = false;
+            }
         }
+
+        // Jalankan login jika pencet tombol 'Enter'
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') doLogin();
+        });
     </script>
 </body>
 </html>
